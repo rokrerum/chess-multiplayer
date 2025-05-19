@@ -5,7 +5,7 @@ import multiplayer
 import chess
 
 
-class game:
+class Game:
     def __init__(self):
         self.board = [
             [r],[h],[b],[k],[q],[b],[h],[r],
@@ -17,6 +17,8 @@ class game:
             [P],[P],[P],[P],[P],[P],[P],[P],
             [R],[H],[B],[K],[Q],[B],[H],[R],
         ]
+        self.board.places = [[Square(row, col) for col in range(8)] for row in range(8)]
+        
         self.turn = "white"
         self.move_history = []
         self.en_passant = None
@@ -31,6 +33,19 @@ class game:
         self.insufficient_material = False
         self.fivefold_repetition = False
 
+class Square:
+    def __init__(self, position, color):
+        self.position = position
+        self.color = color
+        self.piece = None
+        self.rect = pygame.Rect(...)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect)
+
+    def is_clicked(self, mouse_pos):
+        return self.rect.collidepoint(mouse_pos)
+    
 
 class Main:
     def __init__(self):
@@ -38,12 +53,8 @@ class Main:
         self.screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Szachy Online")
         
-    def start_the_game() -> None:
-        global user_name
-        print(f'{user_name.get_value()}, Do the job here!')
         
-        
-class Menu:
+class Menu_gui:
     def __init__(self):
         self.surface = create_example_window('Example - Simple', (600, 400))
         self.menu = pygame_menu.Menu(
@@ -53,15 +64,35 @@ class Menu:
             width=400
         )
 
-    def menu_creation(self):
+    def menu_gui(self):
+        global user_name
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
-        self.menu.add.button('Play', Main.start_the_game)
+        self.menu.add.button('Play ai', Menu_gui.start_the_game_singleplayer)
+        self.menu.add.button('Play multiplayer', Menu_gui.start_the_game_multiplayer)
         self.menu.add.button('Quit', pygame_menu.events.EXIT)
 
         self.menu.mainloop(self.surface)
-
+        
+        
+    def start_the_game_singleplayer() -> None:
+        print(f'{user_name.get_value()}, Do the job here!')
+        
+    def start_the_game_multiplayer() -> None:
+        print(f'{user_name.get_value()}, Do the job here!')
+        
+        
+class game_gui:
+    def __init__(self):
+        self.game = Game()
+        self.board = chess.Board(self.game.board)
+        
+    def game_interface(self):
+        self.board.draw()
+        pygame.display.flip()
 
 
 if __name__ == "__main__":
-    menu = Menu()
-    menu.menu_creation()
+    menu = Menu_gui()
+    menu.menu_gui()
+    gamee = game_gui()
+    gamee.game_gui()
