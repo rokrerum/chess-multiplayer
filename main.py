@@ -8,16 +8,17 @@ import chess
 class Game:
     def __init__(self):
         self.board = [
-            [r],[h],[b],[k],[q],[b],[h],[r],
-            [p],[p],[p],[p],[p],[p],[p],[p],
+            ["r"],["h"],["b"],["k"],["q"],["b"],["h"],["r"], #white
+            ["p"],["p"],["p"],["p"],["p"],["p"],["p"],["p"],
             [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
             [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
             [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
             [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
-            [P],[P],[P],[P],[P],[P],[P],[P],
-            [R],[H],[B],[K],[Q],[B],[H],[R],
+            ["P"],["P"],["P"],["P"],["P"],["P"],["P"],["P"],
+            ["R"],["H"],["B"],["K"],["Q"],["B"],["H"],["R"], #Black
         ]
-        self.board.places = [[Square(row, col) for col in range(8)] for row in range(8)]
+        
+        self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
         
         self.turn = "white"
         self.move_history = []
@@ -32,13 +33,17 @@ class Game:
         self.fifty_move_rule = False
         self.insufficient_material = False
         self.fivefold_repetition = False
+    
+
 
 class Square:
     def __init__(self, position, color):
         self.position = position
         self.color = color
-        self.piece = None
-        self.rect = pygame.Rect(...)
+    
+    def __repr__(self):
+        piece_info = f", piece={self.piece}" if self.piece else ""
+        return f"Square({self.position}, {self.color}{piece_info})"
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -76,23 +81,28 @@ class Menu_gui:
         
     def start_the_game_singleplayer() -> None:
         print(f'{user_name.get_value()}, Do the job here!')
+        game_interface_var = game_gui()
+        game_interface_var.game_interface()
         
     def start_the_game_multiplayer() -> None:
         print(f'{user_name.get_value()}, Do the job here!')
+        game_interface_var = game_gui()
+        game_interface_var.game_interface()
         
         
 class game_gui:
     def __init__(self):
         self.game = Game()
-        self.board = chess.Board(self.game.board)
+        #self.board = chess.Board(self.game.board)
         
     def game_interface(self):
-        self.board.draw()
-        pygame.display.flip()
+        pygame.init()
+        screen = pygame.display.set_mode((800, 600))
 
 
 if __name__ == "__main__":
     menu = Menu_gui()
     menu.menu_gui()
+    
     gamee = game_gui()
     gamee.game_gui()
