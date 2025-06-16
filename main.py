@@ -3,19 +3,20 @@ import pygame_menu
 from pygame_menu.examples import create_example_window
 import multiplayer
 import chess
+import time
 
 
 class Game:
     def __init__(self):
         self.board = [
-            ["r"],["h"],["b"],["k"],["q"],["b"],["h"],["r"], #white
-            ["p"],["p"],["p"],["p"],["p"],["p"],["p"],["p"],
-            [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
-            [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
-            [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
-            [ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ],
-            ["P"],["P"],["P"],["P"],["P"],["P"],["P"],["P"],
-            ["R"],["H"],["B"],["K"],["Q"],["B"],["H"],["R"], #Black
+            [["r"],["n"],["b"],["k"],["q"],["b"],["n"],["r"]], #white
+            [["p"],["p"],["p"],["p"],["p"],["p"],["p"],["p"]],
+            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
+            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
+            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
+            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
+            [["P"],["P"],["P"],["P"],["P"],["P"],["P"],["P"]],
+            [["R"],["N"],["B"],["K"],["Q"],["B"],["N"],["R"]], #Black
         ]
         
         self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
@@ -72,37 +73,90 @@ class Menu_gui:
     def menu_gui(self):
         global user_name
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
-        self.menu.add.button('Play ai', Menu_gui.start_the_game_singleplayer)
-        self.menu.add.button('Play multiplayer', Menu_gui.start_the_game_multiplayer)
+        self.menu.add.button('Play ai', self.start_the_game_singleplayer)
+        self.menu.add.button('Play multiplayer', self.start_the_game_multiplayer)
         self.menu.add.button('Quit', pygame_menu.events.EXIT)
 
+        self.menu.enable()
         self.menu.mainloop(self.surface)
+        
         
         
     def start_the_game_singleplayer() -> None:
         print(f'{user_name.get_value()}, Do the job here!')
         game_interface_var = game_gui()
+        pygame_menu.events.CLOSE
         game_interface_var.game_interface()
         
-    def start_the_game_multiplayer() -> None:
+    def start_the_game_multiplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
+        self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
         
         
-class game_gui:
+class game_gui(Game):
     def __init__(self):
+        super().__init__()
         self.game = Game()
-        #self.board = chess.Board(self.game.board)
+
         
     def game_interface(self):
         pygame.init()
-        screen = pygame.display.set_mode((800, 600))
+        screen = pygame.display.set_mode((900, 600))
+        game = Game()
+        for i in range(1,9): #this for lups are for drawing the board 
+            for j in range(1,9):
+                board_square = game.places[i-1][j-1]
+                if board_square.color == "white":
+                    pygame.draw.rect(screen, (255, 255, 255), (j*80, i*80, 80, 80)) #(rect_x, rect_y, rect_width, rect_height)
+                else:
+                    pygame.draw.rect(screen, (222, 0, 0), (j*80, i*80, 80, 80))
+            
+        
+        pygame.display.update()
+        
+        for i in range(0,8): #this for lups are for drawing pieces on the board 
+            for j in range(0,8):
+                
+                if str(game.board[i][j]).upper() == "p":
+                    if (game.board[i][j]).isupper():
+                        pygame.draw.circle(screen, (0, 0, 0), (j*80 + i*80, 40,  40), 30)
+                    else:
+                        pygame.draw.circle(screen, (255, 255, 255), (j*80 + 40, i*80 + 40), 30)  
+                if str(game.board[i][j]).upper() == "r":
+                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
+                elif str(game.board[i][j]).upper() == "n":
+                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
+                elif str(game.board[i][j]).upper() == "b":
+                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
+                elif str(game.board[i][j]).upper() == "k":
+                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
+                elif str(game.board[i][j]).upper() == "q":
+                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
+                        
+        pygame.display.update()
+        
+        #game runing###########################
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        mouse_x, mouse_y = event.pos
+                        col = mouse_x // 80
+                        row = mouse_y // 80
+                        
+                        print(f"Kliknięto na pole ({col}, {row})")
 
+                        # Sprawdź czy kliknięto na figurę
+                        #if (row, col) == piece_pos:
+                        #    dragging = True
+                        #    offset_x = mouse_x - (col * SQUARE_SIZE + SQUARE_SIZE // 2)
 
 if __name__ == "__main__":
     menu = Menu_gui()
     menu.menu_gui()
-    
-    gamee = game_gui()
-    gamee.game_gui()
