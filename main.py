@@ -103,60 +103,111 @@ class game_gui(Game):
         
     def game_interface(self):
         pygame.init()
-        screen = pygame.display.set_mode((900, 600))
         game = Game()
-        for i in range(1,9): #this for lups are for drawing the board 
+        global screen
+        
+        screen = pygame.display.set_mode((900, 600))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        
+        #those 4 blocks are for creating a border around the board
+        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80/4, 80*8.5) #vertical
+        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80/4, 80*8.5) 
+        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80*8.5, 80/4) #horizontal
+        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80*8.5, 80/4) 
+
+        for i in range(0,8): #this loop is for writing the numbers on the board
+            pass
+        
+        for i in range(0,8): #this loop is for writing alfabet on the board
+            pass
+        
+        #this for loops are for drawing the board
+        for i in range(1,9):  
             for j in range(1,9):
                 board_square = game.places[i-1][j-1]
                 if board_square.color == "white":
                     pygame.draw.rect(screen, (255, 255, 255), (j*80, i*80, 80, 80)) #(rect_x, rect_y, rect_width, rect_height)
                 else:
                     pygame.draw.rect(screen, (222, 0, 0), (j*80, i*80, 80, 80))
-            
-        
+                    
         pygame.display.update()
         
-        for i in range(0,8): #this for lups are for drawing pieces on the board 
+        
+    def draw_pieces(self):
+        game = Game()
+        for i in range(0,8): #this for loops are for drawing pieces on the board 
             for j in range(0,8):
+                piece = game.board[i][j]
+                if len(piece) == 0:
+                    continue
                 
-                if str(game.board[i][j]).upper() == "p":
-                    if (game.board[i][j]).isupper():
-                        pygame.draw.circle(screen, (0, 0, 0), (j*80 + i*80, 40,  40), 30)
-                    else:
-                        pygame.draw.circle(screen, (255, 255, 255), (j*80 + 40, i*80 + 40), 30)  
-                if str(game.board[i][j]).upper() == "r":
-                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
-                elif str(game.board[i][j]).upper() == "n":
-                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
-                elif str(game.board[i][j]).upper() == "b":
-                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
-                elif str(game.board[i][j]).upper() == "k":
-                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
-                elif str(game.board[i][j]).upper() == "q":
-                    pygame.draw.circle(screen, (0, 0, 0), (j*80 + 40, i*80 + 40), 30)
+                else:
+                    if piece[0].upper() == "P":
+                        print(piece[0])
+                        if piece[0].isupper():
+                            print(piece)
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) #upside down
+                        else:
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60)  # normal rotation
+
+                    elif piece[0].upper() == "R":
+                        if piece[0].isupper():
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                        else:
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+
+                    elif piece[0].upper() == "N":
+                        if piece[0].isupper():
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                        else:
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+
+                    elif piece[0].upper() == "B":
+                        if piece[0].isupper():
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                        else:
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+
+                    elif piece[0].upper() == "K":
+                        if piece[0].isupper():
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                        else:
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+
+                    elif piece[0].upper() == "Q":
+                        if piece[0].isupper():
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                        else:
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
                         
         pygame.display.update()
         
-        #game runing###########################
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        mouse_x, mouse_y = event.pos
-                        col = mouse_x // 80
-                        row = mouse_y // 80
-                        
-                        print(f"Kliknięto na pole ({col}, {row})")
+        
 
-                        # Sprawdź czy kliknięto na figurę
-                        #if (row, col) == piece_pos:
-                        #    dragging = True
-                        #    offset_x = mouse_x - (col * SQUARE_SIZE + SQUARE_SIZE // 2)
 
 if __name__ == "__main__":
     menu = Menu_gui()
     menu.menu_gui()
+    
+    game = game_gui()
+    game.draw_pieces()
+    
+    #game runing###########################
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouse_x, mouse_y = event.pos
+                    col = mouse_x // 80
+                    row = mouse_y // 80
+                    
+                    print(f"Kliknięto na pole ({col}, {row})")
+                    
+                    # Sprawdź czy kliknięto na figurę
+                    #if (row, col) == piece_pos:
+                    #    dragging = True
+                    #    offset_x = mouse_x - (col * SQUARE_SIZE + SQUARE_SIZE // 2)
