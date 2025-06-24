@@ -101,19 +101,19 @@ class game_gui(Game):
         self.game = Game()
 
         
-    def game_interface(self):
+    def game_interface(self, x = 900, y = 600):
         pygame.init()
         game = Game()
         global screen
-        
-        screen = pygame.display.set_mode((900, 600))
+        square_size = int(round(y / 17 * 2))
+        border_size = int(round(y / 17))
+
+        screen = pygame.display.set_mode((x, y))
         font = pygame.font.Font('freesansbold.ttf', 32)
         
-        #those 4 blocks are for creating a border around the board
-        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80/4, 80*8.5) #vertical
-        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80/4, 80*8.5) 
-        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80*8.5, 80/4) #horizontal
-        pygame.draw.rect(screen, (222, 20, 100), (80, 80), 80*8.5, 80/4) 
+        #this creates ther border around the board
+        pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) 
+
 
         for i in range(0,8): #this loop is for writing the numbers on the board
             pass
@@ -126,9 +126,9 @@ class game_gui(Game):
             for j in range(1,9):
                 board_square = game.places[i-1][j-1]
                 if board_square.color == "white":
-                    pygame.draw.rect(screen, (255, 255, 255), (j*80, i*80, 80, 80)) #(rect_x, rect_y, rect_width, rect_height)
+                    pygame.draw.rect(screen, (255, 255, 255), ((j*square_size)- border_size, (i*square_size)- border_size, square_size, square_size)) #(rect_x, rect_y, rect_width, rect_height)
                 else:
-                    pygame.draw.rect(screen, (222, 0, 0), (j*80, i*80, 80, 80))
+                    pygame.draw.rect(screen, (222, 0, 0), ((j*square_size)- border_size, (i*square_size)- border_size, square_size, square_size))
                     
         pygame.display.update()
         
@@ -183,8 +183,7 @@ class game_gui(Game):
         pygame.display.update()
         
         
-
-
+        
 if __name__ == "__main__":
     menu = Menu_gui()
     menu.menu_gui()
