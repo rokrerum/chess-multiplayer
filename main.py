@@ -105,16 +105,14 @@ class game_gui(Game):
         pygame.init()
         game = Game()
         global screen
-        square_size = int(round(y / 17 * 2))
-        border_size = int(round(y / 17))
+        square_size = int(round(y / 18 * 2))
+        border_size = int(round(y / 18))
 
         screen = pygame.display.set_mode((x, y))
         font = pygame.font.Font('freesansbold.ttf', 32)
         
-        #this creates ther border around the board
-        pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) 
-
-
+        pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) #this creates ther border around the board
+        
         for i in range(0,8): #this loop is for writing the numbers on the board
             pass
         
@@ -126,10 +124,12 @@ class game_gui(Game):
             for j in range(1,9):
                 board_square = game.places[i-1][j-1]
                 if board_square.color == "white":
-                    pygame.draw.rect(screen, (255, 255, 255), ((j*square_size)- border_size, (i*square_size)- border_size, square_size, square_size)) #(rect_x, rect_y, rect_width, rect_height)
+                    pygame.draw.rect(screen, (255, 255, 255), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size)) #(rect_x, rect_y, rect_width, rect_height)
                 else:
-                    pygame.draw.rect(screen, (222, 0, 0), ((j*square_size)- border_size, (i*square_size)- border_size, square_size, square_size))
-                    
+                    pygame.draw.rect(screen, (222, 0, 0), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size))
+        
+        pygame.draw.rect(screen, (102, 0, 100), (y, 0, x - y, y)) 
+        
         pygame.display.update()
         
         
