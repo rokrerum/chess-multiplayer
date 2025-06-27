@@ -104,7 +104,7 @@ class game_gui(Game):
     def game_interface(self, x = 900, y = 600):
         pygame.init()
         game = Game()
-        global screen
+        global screen, square_size, border_size;
         square_size = int(round(y / 18 * 2))
         border_size = int(round(y / 18))
 
@@ -113,11 +113,13 @@ class game_gui(Game):
         
         pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) #this creates ther border around the board
         
-        for i in range(0,8): #this loop is for writing the numbers on the board
-            pass
+        for i in range(1,9): #this loop is for writing the numbers on the board
+            text = font.render('a', True, (220, 0, 133), (22, 200, 100))
+            screen.blit(text, (border_size / 3, (i*square_size)- (square_size-border_size)))
         
-        for i in range(0,8): #this loop is for writing alfabet on the board
-            pass
+        for i in range(1,9): #this loop is for writing alfabet on the board
+            text = font.render('a', True, (220, 0, 133), (22, 200, 100))
+            screen.blit(text, ((i*square_size)- (square_size-border_size), y - border_size )) 
         
         #this for loops are for drawing the board
         for i in range(1,9):  
@@ -146,39 +148,39 @@ class game_gui(Game):
                         print(piece[0])
                         if piece[0].isupper():
                             print(piece)
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) #upside down
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) #upside down
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60)  # normal rotation
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60)  # normal rotation
 
                     elif piece[0].upper() == "R":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "N":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "B":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "K":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "Q":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*80 , (i + 1)*80), 30, 60) 
+                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         
         pygame.display.update()
         
