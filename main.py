@@ -106,20 +106,20 @@ class game_gui(Game):
         game = Game()
         global screen, square_size, border_size;
         square_size = int(round(y / 18 * 2))
-        border_size = int(round(y / 18))
+        border_size = int(round(y / 18)) 
 
         screen = pygame.display.set_mode((x, y))
-        font = pygame.font.Font('freesansbold.ttf', 32)
+        font = pygame.font.Font('freesansbold.ttf', border_size)
         
         pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) #this creates ther border around the board
         
         for i in range(1,9): #this loop is for writing the numbers on the board
             text = font.render('a', True, (220, 0, 133), (22, 200, 100))
-            screen.blit(text, (border_size / 3, (i*square_size)- (square_size-border_size)))
+            screen.blit(text, (border_size / 3, (i*square_size)- (square_size - (border_size *1.5))))
         
         for i in range(1,9): #this loop is for writing alfabet on the board
-            text = font.render('a', True, (220, 0, 133), (22, 200, 100))
-            screen.blit(text, ((i*square_size)- (square_size-border_size), y - border_size )) 
+            text = font.render('b', True, (220, 0, 133), (22, 200, 100))
+            screen.blit(text, ((i*square_size)- (square_size-(border_size * 1.7)), y - border_size )) 
         
         #this for loops are for drawing the board
         for i in range(1,9):  
@@ -194,7 +194,11 @@ if __name__ == "__main__":
     game.draw_pieces()
     
     #game runing###########################
+    global selected_piece
     running = True
+    dragging = False
+    selected_piece = None
+    
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -203,12 +207,48 @@ if __name__ == "__main__":
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mouse_x, mouse_y = event.pos
-                    col = mouse_x // 80
-                    row = mouse_y // 80
+                    col = (mouse_x - border_size) // square_size
+                    row = (mouse_y - border_size) // square_size
                     
                     print(f"Kliknięto na pole ({col}, {row})")
                     
                     # Sprawdź czy kliknięto na figurę
-                    #if (row, col) == piece_pos:
-                    #    dragging = True
-                    #    offset_x = mouse_x - (col * SQUARE_SIZE + SQUARE_SIZE // 2)
+                    if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
+                        dragging = True
+                        offset_x = mouse_x - (col * square_size + square_size // 2)
+
+                    else:
+                        dragging = False
+                        selected_piece = None
+                        
+                    
+                if event.button == 1 and dragging:
+                    if game.board[row][col] == "":
+                        dragging = False
+                        
+                    else:
+                        selected_piece = str(game.board[row][col])
+                        offset_x = mouse_x - (col * square_size + square_size // 2)
+                        offset_y = mouse_y - (row * square_size + square_size // 2)
+                        
+                        if selected_piece.upper() == "P":
+                            chess.pawn_moves()
+
+                        elif selected_piece.upper() == "R":
+                            chess.rook_moves()
+
+                        elif selected_piece.upper() == "N":
+                            chess.knight_moves()
+
+                        elif selected_piece.upper() == "B":
+                            chess.bishop_moves()   
+                            
+                        elif selected_piece.upper() == "K":
+                            chess.king_moves()
+
+                        elif selected_piece.upper() == "Q":
+                            chess.queen_moves()
+
+        
+            else:
+                dragging = False
