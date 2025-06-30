@@ -46,12 +46,6 @@ class Square:
         piece_info = f", piece={self.piece}" if self.piece else ""
         return f"Square({self.position}, {self.color}{piece_info})"
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
-
-    def is_clicked(self, mouse_pos):
-        return self.rect.collidepoint(mouse_pos)
-    
 
 class Main:
     def __init__(self):
@@ -212,7 +206,7 @@ if __name__ == "__main__":
                     
                     print(f"Kliknięto na pole ({col}, {row})")
                     
-                    # Sprawdź czy kliknięto na figurę
+                    # this check if you clikced on a piece
                     if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
                         dragging = True
                         offset_x = mouse_x - (col * square_size + square_size // 2)
@@ -223,32 +217,33 @@ if __name__ == "__main__":
                         
                     
                 if event.button == 1 and dragging:
-                    if game.board[row][col] == "":
-                        dragging = False
+                    selected_piece = str(game.board[row][col][0])
+                    print("Kliknięto na figurę"+ str(selected_piece))
+                    offset_x = mouse_x - (col * square_size + square_size // 2)
+                    offset_y = mouse_y - (row * square_size + square_size // 2)
+                    
+                    if selected_piece.upper() == "P": 
+                        posible_moves = chess.piece_moves.pawn_moves(game.board, row, col)
                         
-                    else:
-                        selected_piece = str(game.board[row][col])
-                        offset_x = mouse_x - (col * square_size + square_size // 2)
-                        offset_y = mouse_y - (row * square_size + square_size // 2)
                         
-                        if selected_piece.upper() == "P":
-                            chess.pawn_moves()
+                    elif selected_piece.upper() == "R":
+                        posible_moves = chess.piece_moves.rook_moves(game.board, row, col)
+                        
+                    elif selected_piece.upper() == "N":
+                        posible_moves = chess.piece_moves.knight_moves(game.board, row, col)
+                        
+                    elif selected_piece.upper() == "B":
+                        posible_moves = chess.piece_moves.bishop_moves(game.board, row, col)
+                        
+                    elif selected_piece.upper() == "K":
+                        posible_moves = chess.piece_moves.king_moves(game.board, row, col)
+                        
+                    elif selected_piece.upper() == "Q":
+                        posible_moves = chess.piece_moves.queen_moves(game.board, row, col)
+                        
+                    print(posible_moves)
 
-                        elif selected_piece.upper() == "R":
-                            chess.rook_moves()
 
-                        elif selected_piece.upper() == "N":
-                            chess.knight_moves()
-
-                        elif selected_piece.upper() == "B":
-                            chess.bishop_moves()   
-                            
-                        elif selected_piece.upper() == "K":
-                            chess.king_moves()
-
-                        elif selected_piece.upper() == "Q":
-                            chess.queen_moves()
-
-        
+                    
             else:
                 dragging = False
