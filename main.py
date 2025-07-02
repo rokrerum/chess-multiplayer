@@ -5,6 +5,9 @@ import multiplayer
 import chess
 import time
 
+global posible_moves
+posible_moves = []
+
 
 class Game:
     def __init__(self):
@@ -14,7 +17,7 @@ class Game:
             [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
             [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
             [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
-            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
+            [[ ],[ ],[ ],[ ],[ ],["p"],[ ],["p"]],
             [["P"],["P"],["P"],["P"],["P"],["P"],["P"],["P"]],
             [["R"],["N"],["B"],["K"],["Q"],["B"],["N"],["R"]], #Black
         ]
@@ -103,6 +106,10 @@ class game_gui(Game):
         border_size = int(round(y / 18)) 
 
         screen = pygame.display.set_mode((x, y))
+        
+    
+    def draw_board(self, x = 900, y = 600):
+        game = Game()
         font = pygame.font.Font('freesansbold.ttf', border_size)
         
         pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) #this creates ther border around the board
@@ -122,9 +129,17 @@ class game_gui(Game):
                 if board_square.color == "white":
                     pygame.draw.rect(screen, (255, 255, 255), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size)) #(rect_x, rect_y, rect_width, rect_height)
                 else:
-                    pygame.draw.rect(screen, (222, 0, 0), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size))
+                    pygame.draw.rect(screen, (100, 100, 100), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size))
         
         pygame.draw.rect(screen, (102, 0, 100), (y, 0, x - y, y)) 
+        
+        
+        if posible_moves != []: #this if statement is for drawing the posible moves for clicked figure
+            for move in posible_moves:
+                if len(game.board[move[0]][move[1]]) > 0:
+                    pygame.draw.rect(screen, (255, 0, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
+                else:
+                    pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
         
         pygame.display.update()
         
@@ -139,42 +154,41 @@ class game_gui(Game):
                 
                 else:
                     if piece[0].upper() == "P":
-                        print(piece[0])
                         if piece[0].isupper():
-                            print(piece)
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) #upside down
+
+                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) #upside down
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60)  # normal rotation
+                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60)  # normal rotation
 
                     elif piece[0].upper() == "R":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "N":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "B":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "K":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
 
                     elif piece[0].upper() == "Q":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         else:
-                            pygame.draw.circle(screen, (0, 20, 90), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
                         
         pygame.display.update()
         
@@ -185,6 +199,7 @@ if __name__ == "__main__":
     menu.menu_gui()
     
     game = game_gui()
+    game.draw_board()
     game.draw_pieces()
     
     #game runing###########################
@@ -192,6 +207,7 @@ if __name__ == "__main__":
     running = True
     dragging = False
     selected_piece = None
+    posible_moves = []
     
     while running:
         for event in pygame.event.get():
@@ -204,46 +220,67 @@ if __name__ == "__main__":
                     col = (mouse_x - border_size) // square_size
                     row = (mouse_y - border_size) // square_size
                     
-                    print(f"Kliknięto na pole ({col}, {row})")
+                    print(f"Kliknięto na pole ({row}, {col})")
                     
                     # this check if you clikced on a piece
                     if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
                         dragging = True
                         offset_x = mouse_x - (col * square_size + square_size // 2)
 
+                        selected_piece = str(game.board[row][col][0])
+                        print("Kliknięto na figurę"+ str(selected_piece))
+                        offset_x = mouse_x - (col * square_size + square_size // 2)
+                        offset_y = mouse_y - (row * square_size + square_size // 2)
+
+                        if selected_piece.upper() == "P": 
+                            posible_moves = chess.piece_moves.pawn_moves(game.board, row, col)
+
+                        elif selected_piece.upper() == "R":
+                            posible_moves = chess.piece_moves.rook_moves(game.board, row, col)
+
+                        elif selected_piece.upper() == "N":
+                            posible_moves = chess.piece_moves.knight_moves(game.board, row, col)
+
+                        elif selected_piece.upper() == "B":
+                            posible_moves = chess.piece_moves.bishop_moves(game.board, row, col)
+
+                        elif selected_piece.upper() == "K":
+                            posible_moves = chess.piece_moves.king_moves(game.board, row, col)
+
+                        elif selected_piece.upper() == "Q":
+                            posible_moves = chess.piece_moves.queen_moves(game.board, row, col)
+
+                        game.draw_board()
+                        game.draw_pieces()
+                        
                     else:
                         dragging = False
                         selected_piece = None
                         
                     
+            elif event.type == pygame.MOUSEBUTTONUP:
+                print(f"Nowe położenie: " + str(dragging))
                 if event.button == 1 and dragging:
-                    selected_piece = str(game.board[row][col][0])
-                    print("Kliknięto na figurę"+ str(selected_piece))
-                    offset_x = mouse_x - (col * square_size + square_size // 2)
-                    offset_y = mouse_y - (row * square_size + square_size // 2)
-                    
-                    if selected_piece.upper() == "P": 
-                        posible_moves = chess.piece_moves.pawn_moves(game.board, row, col)
-                        
-                        
-                    elif selected_piece.upper() == "R":
-                        posible_moves = chess.piece_moves.rook_moves(game.board, row, col)
-                        
-                    elif selected_piece.upper() == "N":
-                        posible_moves = chess.piece_moves.knight_moves(game.board, row, col)
-                        
-                    elif selected_piece.upper() == "B":
-                        posible_moves = chess.piece_moves.bishop_moves(game.board, row, col)
-                        
-                    elif selected_piece.upper() == "K":
-                        posible_moves = chess.piece_moves.king_moves(game.board, row, col)
-                        
-                    elif selected_piece.upper() == "Q":
-                        posible_moves = chess.piece_moves.queen_moves(game.board, row, col)
-                        
-                    print(posible_moves)
+                    mouse_x, mouse_y = event.pos
+                    new_col = (mouse_x - border_size) // square_size
+                    new_row = (mouse_y - border_size) // square_size
+                    piece_pos = (new_row, new_col)
+                    dragging = False
+                    print(f"Nowe położenie fig: ({new_row}, {new_col})")
 
+                    if len(posible_moves) != 0:
+                        print("ruch wykonany" + str(posible_moves))
+                        for i in posible_moves:
+                            if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
+                                print(game.board[new_row][new_col])
+                                print("ruch wykonany")
+                                game.board[new_row][new_col] = game.board[row][col]
+                                game.board[row][col] = ""
 
-                    
-            else:
-                dragging = False
+                                posible_moves = []
+                                game.draw_board()
+                                game.draw_pieces()
+                                print("ruch wykonany")
+                                print(game.board[new_row][new_col])
+                
+   
