@@ -13,7 +13,7 @@ class piece_moves:
 
                     
             else:
-                if board[row + 1][col] == " ":
+                if len(board[row + 1][col]) == 0:
                     posible_moves.append([row - 1, col])
             
             if col + 1 < 8 and len(board[row - 1][col + 1]) > 0 and board[row - 1][col + 1][0].lower() == board[row - 1][col + 1][0]:
@@ -21,6 +21,9 @@ class piece_moves:
             
             if col - 1 < 8 and len(board[row - 1][col - 1]) > 0 and board[row - 1][col - 1][0].lower() == board[row - 1][col - 1][0]:
                 posible_moves.append([row - 1, col - 1])
+        
+        else:
+            posible_moves = []
                 
         return posible_moves
     
