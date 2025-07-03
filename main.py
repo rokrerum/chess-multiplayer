@@ -12,14 +12,14 @@ posible_moves = []
 class Game:
     def __init__(self):
         self.board = [
-            [["r"],["n"],["b"],["k"],["q"],["b"],["n"],["r"]], #white
-            [["p"],["p"],["p"],["p"],["p"],["p"],["p"],["p"]],
-            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
-            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
-            [[ ],[ ],[ ],[ ],[ ],[ ],[ ],[ ]],
-            [[ ],[ ],[ ],[ ],[ ],["p"],[ ],["p"]],
-            [["P"],["P"],["P"],["P"],["P"],["P"],["P"],["P"]],
-            [["R"],["N"],["B"],["K"],["Q"],["B"],["N"],["R"]], #Black
+            ["r", "n", "b", "q", "k", "b", "n", "r"],
+            ["p", "p", "p", "p", "p", "p", "p", "p"],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["P", "P", "P", "P", "P", "P", "P", "P"],
+            ["R", "N", "B", "Q", "K", "B", "N", "R"]
         ]
         
         self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
@@ -268,19 +268,18 @@ if __name__ == "__main__":
                     dragging = False
                     print(f"Nowe położenie fig: ({new_row}, {new_col})")
 
+                    print(str(posible_moves))
                     if len(posible_moves) != 0:
                         print("ruch wykonany" + str(posible_moves))
                         for i in posible_moves:
                             if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
-                                print(game.board[new_row][new_col])
-                                print("ruch wykonany")
+
                                 game.board[new_row][new_col] = game.board[row][col]
                                 game.board[row][col] = ""
 
                                 posible_moves = []
                                 game.draw_board()
                                 game.draw_pieces()
-                                print("ruch wykonany")
-                                print(game.board[new_row][new_col])
+
                 
    
