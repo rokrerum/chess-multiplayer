@@ -15,9 +15,9 @@ class Game:
             ["r", "n", "b", "q", "k", "b", "n", "r"],
             ["p", "p", "p", "p", "p", "p", "p", "p"],
             ["", "", "", "", "", "", "", ""],
+            ["", "", "p", "", "R", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "p", "p", "p"],
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"]
         ]
@@ -136,7 +136,7 @@ class game_gui(Game):
         
         if posible_moves != []: #this if statement is for drawing the posible moves for clicked figure
             for move in posible_moves:
-                if len(game.board[move[0]][move[1]]) > 0:
+                if len(self.board[move[0]][move[1]]) > 0:
                     pygame.draw.rect(screen, (255, 0, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
                 else:
                     pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
@@ -145,10 +145,9 @@ class game_gui(Game):
         
         
     def draw_pieces(self):
-        game = Game()
         for i in range(0,8): #this for loops are for drawing pieces on the board 
             for j in range(0,8):
-                piece = game.board[i][j]
+                piece = self.board[i][j]
                 if len(piece) == 0:
                     continue
                 
@@ -220,15 +219,12 @@ if __name__ == "__main__":
                     col = (mouse_x - border_size) // square_size
                     row = (mouse_y - border_size) // square_size
                     
-                    print(f"Kliknięto na pole ({row}, {col})")
-                    
                     # this check if you clikced on a piece
                     if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
                         dragging = True
                         offset_x = mouse_x - (col * square_size + square_size // 2)
 
                         selected_piece = str(game.board[row][col][0])
-                        print("Kliknięto na figurę"+ str(selected_piece))
                         offset_x = mouse_x - (col * square_size + square_size // 2)
                         offset_y = mouse_y - (row * square_size + square_size // 2)
 
@@ -259,18 +255,14 @@ if __name__ == "__main__":
                         
                     
             elif event.type == pygame.MOUSEBUTTONUP:
-                print(f"Nowe położenie: " + str(dragging))
                 if event.button == 1 and dragging:
                     mouse_x, mouse_y = event.pos
                     new_col = (mouse_x - border_size) // square_size
                     new_row = (mouse_y - border_size) // square_size
                     piece_pos = (new_row, new_col)
                     dragging = False
-                    print(f"Nowe położenie fig: ({new_row}, {new_col})")
 
-                    print(str(posible_moves))
                     if len(posible_moves) != 0:
-                        print("ruch wykonany" + str(posible_moves))
                         for i in posible_moves:
                             if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
 
@@ -280,6 +272,3 @@ if __name__ == "__main__":
                                 posible_moves = []
                                 game.draw_board()
                                 game.draw_pieces()
-
-                
-   
