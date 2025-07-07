@@ -152,16 +152,27 @@ class piece_moves:
         return posible_moves
     
     
-    def chec(self, board, row, col): #not working
-        posible_ataks = [
-            [(row - i, col) for i in range(1, row + 1)], #rook moves
+    def check(board):
+        for i in range(8):
+            for j in range(8):
+                if board[i][j] == "K":
+                    row = i
+                    col = j
+                    break
+        
+        posible_ataks_rook = [
+            [(row - i, col) for i in range(1, row + 1)],
             [(row + i, col) for i in range(1, 8 - row)],
             [(row, col - i) for i in range(1, col + 1)],
-            [(row, col + i) for i in range(1, 8 - col)],
-            [(row - i, col - i) for i in range(1, row + 1)], #bishop moves
+            [(row, col + i) for i in range(1, 8 - col)]
+        ]
+        posible_ataks_bishop = [
+            [(row - i, col - i) for i in range(1, row + 1)],
             [(row - i, col + i) for i in range(1, row + 1)],
             [(row + i, col - i) for i in range(1, 8 - row)],
-            [(row + i, col + i) for i in range(1, 8 - row)],    
+            [(row + i, col + i) for i in range(1, 8 - row)]
+        ]
+        posible_ataks_knight = [
             (row + 2, col + 1),
             (row + 2, col - 1),
             (row - 2, col + 1),
@@ -171,17 +182,74 @@ class piece_moves:
             (row - 1, col + 2),
             (row - 1, col - 2)
         ]
-        for i in posible_ataks:
+        posible_ataks_pawn = [
+            (row + 1, col - 1),
+            (row + 1, col + 1)
+        ]
+        
+
+        for i in posible_ataks_rook:
             for move in i:
                 if 0 <= move[0] < 8 and 0 <= move[1] < 8:
                     if len(board[move[0]][move[1]]) == 0:
-                        pass
-                    elif board[move[0]][move[1]][0].islower():
-                        pass
+                        continue
+                    elif board[move[0]][move[1]][0].islower() and board[move[0]][move[1]][0] == "r" or board[move[0]][move[1]][0] == "q":
+                        print("rrook")
+                        return True
                     else:
-                        pass
+                        break
                 else:
                     break
+                
+        for i in posible_ataks_bishop:
+            for move in i:
+                if 0 <= move[0] < 8 and 0 <= move[1] < 8:
+                    if len(board[move[0]][move[1]]) == 0:
+                        continue
+                    elif board[move[0]][move[1]][0].islower() and board[move[0]][move[1]][0] == "b" or board[move[0]][move[1]][0] == "q":
+                        print("bishop")
+                        return True
+                    else:
+                        break
+                else:
+                    break
+                
+        for i in posible_ataks_knight:
+            if 0 <= i[0] < 8 and 0 <= i[1] < 8:
+                if len(board[i[0]][i[1]]) == 0:
+                    continue
+                elif board[i[0]][i[1]][0].islower() and board[i[0]][i[1]][0] == "n":
+                    print("knight")
+                    return True
+                else:
+                    break
+                
+        for i in posible_ataks_pawn:
+            if 0 <= i[0] < 8 and 0 <= i[1] < 8:
+                if len(board[i[0]][i[1]]) == 0:
+                    continue
+                elif board[i[0]][i[1]][0].islower() and board[i[0]][i[1]][0] == "p":
+                    print("pawn")
+                    return True
+                else:
+                    break
+                
+        return False
+                
+
+    def check_mate(self, board, row, col):
+        posible_moves = []
+        posible_moves.extend(self.pawn_moves(board, row, col))
+        posible_moves.extend(self.rook_moves(board, row, col))
+        posible_moves.extend(self.bishop_moves(board, row, col))
+        posible_moves.extend(self.knight_moves(board, row, col))
+        posible_moves.extend(self.queen_moves(board, row, col))
+        posible_moves.extend(self.king_moves(board, row, col))
+
+        if len(posible_moves) == 0:
+            return True
+        else:
+            return False
             
 
         
