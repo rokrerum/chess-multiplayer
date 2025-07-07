@@ -14,11 +14,11 @@ class Game:
         self.board = [
             ["r", "n", "b", "q", "k", "b", "n", "r"],
             ["p", "p", "p", "p", "p", "p", "p", "p"],
-            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "q", "", "", ""],
             ["", "", "p", "", "R", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "p", "p", "p"],
-            ["P", "P", "P", "P", "P", "P", "P", "P"],
+            ["", "", "", "", "q", "", "p", "p"],
+            ["P", "P", "P", "P", "", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"]
         ]
         
@@ -70,6 +70,7 @@ class Menu_gui:
     def menu_gui(self):
         global user_name
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
+        self.menu.add.button('Play solo', self.start_the_game_singleplayer)
         self.menu.add.button('Play ai', self.start_the_game_singleplayer)
         self.menu.add.button('Play multiplayer', self.start_the_game_multiplayer)
         self.menu.add.button('Quit', pygame_menu.events.EXIT)
@@ -141,6 +142,14 @@ class game_gui(Game):
                 else:
                     pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
         
+        self.check = chess.piece_moves.check(self.board)
+        if self.check:
+            print("white wins")
+        if self.check:
+            for i in range(0,8):
+                for j in range(0,8):
+                    if self.board[i][j] == "K":
+                        pygame.draw.rect(screen, (255, 0, 0), (((j+1) *square_size)- (square_size-border_size), ((i+1) *square_size)- (square_size-border_size), square_size, square_size))
         pygame.display.update()
         
         
@@ -196,8 +205,8 @@ class game_gui(Game):
 if __name__ == "__main__":
     menu = Menu_gui()
     menu.menu_gui()
-    
     game = game_gui()
+    
     game.draw_board()
     game.draw_pieces()
     
@@ -207,7 +216,7 @@ if __name__ == "__main__":
     dragging = False
     selected_piece = None
     posible_moves = []
-    
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
