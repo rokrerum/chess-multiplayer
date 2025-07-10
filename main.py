@@ -80,10 +80,10 @@ class Menu_gui:
         
         
         
-    def start_the_game_singleplayer() -> None:
+    def start_the_game_singleplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
+        self.menu.disable()
         game_interface_var = game_gui()
-        pygame_menu.events.CLOSE
         game_interface_var.game_interface()
         
     def start_the_game_multiplayer(self) -> None:
@@ -116,11 +116,12 @@ class game_gui(Game):
         pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) #this creates ther border around the board
         
         for i in range(1,9): #this loop is for writing the numbers on the board
-            text = font.render('a', True, (220, 0, 133), (22, 200, 100))
+            text = font.render(f"{9 - i}", True, (220, 0, 133), (22, 200, 100))
             screen.blit(text, (border_size / 3, (i*square_size)- (square_size - (border_size *1.5))))
         
+        alfabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         for i in range(1,9): #this loop is for writing alfabet on the board
-            text = font.render('b', True, (220, 0, 133), (22, 200, 100))
+            text = font.render(alfabet[i-1], True, (220, 0, 133), (22, 200, 100))
             screen.blit(text, ((i*square_size)- (square_size-(border_size * 1.7)), y - border_size )) 
         
         #this for loops are for drawing the board
@@ -163,41 +164,44 @@ class game_gui(Game):
                 else:
                     if piece[0].upper() == "P":
                         if piece[0].isupper():
-
-                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) #upside down
+                            image_path = "assets/pb.png" 
                         else:
-                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60)  # normal rotation
-
+                            image_path = "assets/pw.png"   #white
+ 
                     elif piece[0].upper() == "R":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/rb.png" 
                         else:
-                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/rw.png"
 
                     elif piece[0].upper() == "N":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/nb.png" 
                         else:
-                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/nw.png"
 
                     elif piece[0].upper() == "B":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/bb.png" 
                         else:
-                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/bw.png" 
 
                     elif piece[0].upper() == "K":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/kb.png" 
                         else:
-                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/kw.png"
 
                     elif piece[0].upper() == "Q":
                         if piece[0].isupper():
-                            pygame.draw.circle(screen, (10, 10, 10), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
+                            image_path = "assets/qb.png" 
                         else:
-                            pygame.draw.circle(screen, (200, 200, 200), ((j + 1)*square_size , (i + 1)*square_size), square_size / 2.2, 60) 
-                        
+                            image_path = "assets/qw.png"
+                            
+                    image = pygame.image.load(image_path)
+                    scaled_image = pygame.transform.scale(image, (64, 64))
+                    screen.blit(scaled_image, (((j + 1)*square_size - border_size, (i + 1)*square_size - border_size))) 
+                
         pygame.display.update()
         
         
