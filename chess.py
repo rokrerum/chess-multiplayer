@@ -1,9 +1,20 @@
 class piece_moves:
-    global posible_moves
+    global posible_moves, turn_checker
     
-    def pawn_moves(board, row, col):
+    def turn_checker(turn, piece):
+        print(turn)
+        if turn == "white" and piece.islower():
+            return True
+
+        elif turn == "black" and piece.isupper():
+            return True
+        
+        return False
+        
+    
+    def pawn_moves(board, row, col, turn): #pawns aren't working for white
         posible_moves = []
-        if board[row][col][0] == "P":
+        if turn_checker(turn, board[row][col]):
             if row == 6:
                 if len(board[row - 1][col]) == 0:
                     posible_moves.append([row - 1, col])
@@ -27,7 +38,7 @@ class piece_moves:
         return posible_moves
     
         
-    def rook_moves(board, row, col): 
+    def rook_moves(board, row, col, turn): 
         posible_moves = []
         moves = [
             [(row - i, col) for i in range(1, row + 1)],
@@ -36,14 +47,14 @@ class piece_moves:
             [(row, col + i) for i in range(1, 8 - col)]
             
         ]
-        if board[row][col][0] == "R":
+        if turn_checker(turn, board[row][col]):
             for i in moves:
                 for move in i:
                     if 0 <= move[0] < 8 and 0 <= move[1] < 8:
                         if len(board[move[0]][move[1]]) == 0:
                             posible_moves.append(move)
                             
-                        elif board[move[0]][move[1]][0].islower():
+                        elif turn_checker(turn, board[move[0]][move[1]]) == False:
                             posible_moves.append(move)
                             break
                         
@@ -53,7 +64,7 @@ class piece_moves:
         return posible_moves
     
     
-    def knight_moves(board, row, col):
+    def knight_moves(board, row, col, turn):
         posible_moves = []
         moves = [
             (row + 2, col + 1),
@@ -65,16 +76,16 @@ class piece_moves:
             (row - 1, col + 2),
             (row - 1, col - 2)
         ]
-        if board[row][col][0] == "N":
+        if turn_checker(turn, board[row][col]):
             for move in moves:
                 if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                    if len(board[move[0]][move[1]]) == 0 or board[move[0]][move[1]][0].islower():
+                    if len(board[move[0]][move[1]]) == 0 or turn_checker(turn, board[move[0]][move[1]]) == False:
                         posible_moves.append(move)
             
         return posible_moves
     
     
-    def bishop_moves(board, row, col):
+    def bishop_moves(board, row, col, turn):
         posible_moves = []
         moves = [
             [(row - i, col - i) for i in range(1, row + 1)],
@@ -82,13 +93,13 @@ class piece_moves:
             [(row + i, col - i) for i in range(1, 8 - row)],
             [(row + i, col + i) for i in range(1, 8 - row)]
         ]
-        if(board[row][col][0] == "B"):
+        if turn_checker(turn, board[row][col]):
             for i in moves:
                 for move in i:
                     if 0 <= move[0] < 8 and 0 <= move[1] < 8:
                         if len(board[move[0]][move[1]]) == 0:
                             posible_moves.append(move)
-                        elif board[move[0]][move[1]][0].islower():
+                        elif turn_checker(turn, board[move[0]][move[1]]) == False:
                             posible_moves.append(move)
                             break
                         else:
@@ -99,7 +110,7 @@ class piece_moves:
         return posible_moves
         
     
-    def queen_moves(board, row, col):
+    def queen_moves(board, row, col, turn):
         posible_moves = []
         moves = [
             [(row - i, col) for i in range(1, row + 1)], #rook moves
@@ -112,7 +123,7 @@ class piece_moves:
             [(row + i, col + i) for i in range(1, 8 - row)]
         ]
         
-        if board[row][col][0] == "Q":
+        if turn_checker(turn, board[row][col]):
             
             for i in moves:
                 for move in i:
@@ -120,7 +131,7 @@ class piece_moves:
                         if len(board[move[0]][move[1]]) == 0:
                             posible_moves.append(move)
                             
-                        elif board[move[0]][move[1]][0].islower():
+                        elif turn_checker(turn, board[move[0]][move[1]]) == False:
                             posible_moves.append(move)
                             break
                         
@@ -130,7 +141,7 @@ class piece_moves:
         return posible_moves
     
     
-    def king_moves(board, row, col):
+    def king_moves(board, row, col, turn):
         posible_moves = []
         moves = [
         (row + 1, col - 1),
@@ -143,16 +154,16 @@ class piece_moves:
         (row - 1, col + 1)
         ]
         
-        if board[row][col][0] == "K":
+        if turn_checker(turn, board[row][col]):
             for move in moves:
                 if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                    if len(board[move[0]][move[1]]) == 0 or board[move[0]][move[1]][0].islower():
+                    if len(board[move[0]][move[1]]) == 0 or turn_checker(turn, board[move[0]][move[1]]) == False:
                         posible_moves.append(move)
     
         return posible_moves
     
     
-    def check(board):
+    def check(board, turn):
         for i in range(8):
             for j in range(8):
                 if board[i][j] == "K":
@@ -250,7 +261,3 @@ class piece_moves:
             return True
         else:
             return False
-            
-
-        
-    
