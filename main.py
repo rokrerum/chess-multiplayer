@@ -143,7 +143,7 @@ class game_gui(Game):
                 else:
                     pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
         
-        self.check = chess.piece_moves.check(self.board)
+        self.check = chess.piece_moves.check(self.board, turn)
         if self.check:
             print("white wins")
         if self.check:
@@ -207,6 +207,15 @@ class game_gui(Game):
         
         
 if __name__ == "__main__":
+        #game runing###########################
+    global selected_piece, turn
+    turn = "white"
+    running = True
+    dragging = False
+    selected_piece = None
+    posible_moves = []
+    
+    
     menu = Menu_gui()
     menu.menu_gui()
     game = game_gui()
@@ -214,13 +223,6 @@ if __name__ == "__main__":
     game.draw_board()
     game.draw_pieces()
     
-    #game runing###########################
-    global selected_piece
-    running = True
-    dragging = False
-    selected_piece = None
-    posible_moves = []
-
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -242,22 +244,22 @@ if __name__ == "__main__":
                         offset_y = mouse_y - (row * square_size + square_size // 2)
 
                         if selected_piece.upper() == "P": 
-                            posible_moves = chess.piece_moves.pawn_moves(game.board, row, col)
+                            posible_moves = chess.piece_moves.pawn_moves(game.board, row, col, turn)
 
                         elif selected_piece.upper() == "R":
-                            posible_moves = chess.piece_moves.rook_moves(game.board, row, col)
+                            posible_moves = chess.piece_moves.rook_moves(game.board, row, col, turn)
 
                         elif selected_piece.upper() == "N":
-                            posible_moves = chess.piece_moves.knight_moves(game.board, row, col)
+                            posible_moves = chess.piece_moves.knight_moves(game.board, row, col, turn)
 
                         elif selected_piece.upper() == "B":
-                            posible_moves = chess.piece_moves.bishop_moves(game.board, row, col)
+                            posible_moves = chess.piece_moves.bishop_moves(game.board, row, col, turn)
 
                         elif selected_piece.upper() == "K":
-                            posible_moves = chess.piece_moves.king_moves(game.board, row, col)
+                            posible_moves = chess.piece_moves.king_moves(game.board, row, col, turn)
 
                         elif selected_piece.upper() == "Q":
-                            posible_moves = chess.piece_moves.queen_moves(game.board, row, col)
+                            posible_moves = chess.piece_moves.queen_moves(game.board, row, col, turn)
 
                         game.draw_board()
                         game.draw_pieces()
@@ -285,3 +287,8 @@ if __name__ == "__main__":
                                 posible_moves = []
                                 game.draw_board()
                                 game.draw_pieces()
+                                
+                                if turn == "white":
+                                    turn = "black"
+                                else:
+                                    turn = "white"
