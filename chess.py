@@ -12,25 +12,27 @@ class piece_moves:
         return False
         
     
-    def pawn_moves(board, row, col, turn): #pawns aren't working for white
+    def pawn_moves(board, row, col, turn, my_color): #pawns aren't working for white
         posible_moves = []
-        if turn_checker(turn, board[row][col]):
-            if row == 6:
-                if len(board[row - 1][col]) == 0:
-                    posible_moves.append([row - 1, col])
+        where_to_move = 1 if my_color == turn else -1
+        
+        if turn_checker(turn, board[row][col]): #check if the piece is the same color as the turn
+            if row == 6 and my_color == turn or row == 1 and my_color != turn:
+                if len(board[row - where_to_move][col]) == 0:
+                    posible_moves.append([row - where_to_move, col])
                     
-                    if len(board[row - 2][col]) == 0:
-                        posible_moves.append([row - 2, col])
+                    if len(board[row - (where_to_move * 2)][col]) == 0:
+                        posible_moves.append([row - (where_to_move * 2), col])
 
             else:
-                if len(board[row - 1][col]) <= 0:
-                    posible_moves.append([row - 1, col])
+                if len(board[row - where_to_move][col]) <= 0:
+                    posible_moves.append([row - where_to_move, col])
             
-            if col + 1 < 8 and len(board[row - 1][col + 1]) > 0 and board[row - 1][col + 1][0].lower() == board[row - 1][col + 1][0]:
-                posible_moves.append([row - 1, col + 1])
+            if col + 1 < 8 and len(board[row - where_to_move][col + 1]) > 0 and turn_checker(turn, board[row - where_to_move][col + 1]) == False:
+                posible_moves.append([row - where_to_move, col + 1])
             
-            if col - 1 < 8 and len(board[row - 1][col - 1]) > 0 and board[row - 1][col - 1][0].lower() == board[row - 1][col - 1][0]:
-                posible_moves.append([row - 1, col - 1])
+            if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and turn_checker(turn, board[row - where_to_move][col - 1]) == False:
+                posible_moves.append([row - where_to_move, col - 1])
         
         else:
             posible_moves = []
@@ -47,14 +49,14 @@ class piece_moves:
             [(row, col + i) for i in range(1, 8 - col)]
             
         ]
-        if turn_checker(turn, board[row][col]):
+        if turn_checker(turn, board[row][col]): #check if the piece is the same color as the turn
             for i in moves:
                 for move in i:
                     if 0 <= move[0] < 8 and 0 <= move[1] < 8:
                         if len(board[move[0]][move[1]]) == 0:
                             posible_moves.append(move)
                             
-                        elif turn_checker(turn, board[move[0]][move[1]]) == False:
+                        elif turn_checker(turn, board[move[0]][move[1]]) == False: #check if the piece is different color
                             posible_moves.append(move)
                             break
                         
@@ -163,7 +165,7 @@ class piece_moves:
         return posible_moves
     
     
-    def check(board, turn):
+    def check(board, turn, my_color): #not working correctly
         for i in range(8):
             for j in range(8):
                 if board[i][j] == "K":
@@ -193,9 +195,11 @@ class piece_moves:
             (row - 1, col + 2),
             (row - 1, col - 2)
         ]
+        
+        where_to_move = -1 if my_color == turn else 1
         posible_ataks_pawn = [
-            (row + 1, col - 1),
-            (row + 1, col + 1)
+            (row + where_to_move, col - 1),
+            (row + where_to_move, col + 1)
         ]
         
 
@@ -248,7 +252,7 @@ class piece_moves:
         return False
                 
 
-    def check_mate(self, board, row, col):
+    def check_mate(self, board, row, col): #NOT WORKING
         posible_moves = []
         posible_moves.extend(self.pawn_moves(board, row, col))
         posible_moves.extend(self.rook_moves(board, row, col))
