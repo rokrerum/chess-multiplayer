@@ -1,9 +1,10 @@
 import pygame
 import pygame_menu
 from pygame_menu.examples import create_example_window
-import multiplayer
 import chess
-import time
+import chess_ai
+import multiplayer
+
 
 global posible_moves
 posible_moves = []
@@ -71,7 +72,7 @@ class Menu_gui:
         global user_name
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
         self.menu.add.button('Play solo', self.start_the_game_singleplayer)
-        self.menu.add.button('Play ai', self.start_the_game_singleplayer)
+        self.menu.add.button('Play ai', self.start_the_game_against_ia)
         self.menu.add.button('Play multiplayer', self.start_the_game_multiplayer)
         self.menu.add.button('Quit', pygame_menu.events.EXIT)
 
@@ -82,12 +83,24 @@ class Menu_gui:
         
     def start_the_game_singleplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
+        global two_players
+        two_players = False
+        self.menu.disable()
+        game_interface_var = game_gui()
+        game_interface_var.game_interface()
+        
+    def start_the_game_against_ia(self):
+        print(f'{user_name.get_value()}, Do the job here!')
+        global two_players
+        two_players = True
         self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
         
     def start_the_game_multiplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
+        global two_players
+        two_players = True
         self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
@@ -143,7 +156,7 @@ class game_gui(Game):
                 else:
                     pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
         
-        self.check = chess.piece_moves.check(self.board, turn)
+        self.check = chess.piece_moves.check(self.board, turn, my_color)
         if self.check:
             print("white wins")
         if self.check:
@@ -208,8 +221,9 @@ class game_gui(Game):
         
 if __name__ == "__main__":
         #game runing###########################
-    global selected_piece, turn
+    global selected_piece, turn, my_color
     turn = "white"
+    my_color = "black"
     running = True
     dragging = False
     selected_piece = None
@@ -227,68 +241,74 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    mouse_x, mouse_y = event.pos
-                    col = (mouse_x - border_size) // square_size
-                    row = (mouse_y - border_size) // square_size
-                    
-                    # this check if you clikced on a piece
-                    if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
-                        dragging = True
-                        offset_x = mouse_x - (col * square_size + square_size // 2)
+                
+            if two_players == True and turn == my_color or two_players == False:
 
-                        selected_piece = str(game.board[row][col][0])
-                        offset_x = mouse_x - (col * square_size + square_size // 2)
-                        offset_y = mouse_y - (row * square_size + square_size // 2)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        mouse_x, mouse_y = event.pos
+                        col = (mouse_x - border_size) // square_size
+                        row = (mouse_y - border_size) // square_size
 
-                        if selected_piece.upper() == "P": 
-                            posible_moves = chess.piece_moves.pawn_moves(game.board, row, col, turn)
+                        # this check if you clikced on a piece
+                        if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
+                            dragging = True
+                            offset_x = mouse_x - (col * square_size + square_size // 2)
 
-                        elif selected_piece.upper() == "R":
-                            posible_moves = chess.piece_moves.rook_moves(game.board, row, col, turn)
+                            selected_piece = str(game.board[row][col][0])
+                            offset_x = mouse_x - (col * square_size + square_size // 2)
+                            offset_y = mouse_y - (row * square_size + square_size // 2)
 
-                        elif selected_piece.upper() == "N":
-                            posible_moves = chess.piece_moves.knight_moves(game.board, row, col, turn)
+                            if selected_piece.upper() == "P": 
+                                posible_moves = chess.piece_moves.pawn_moves(game.board, row, col, turn, my_color)
 
-                        elif selected_piece.upper() == "B":
-                            posible_moves = chess.piece_moves.bishop_moves(game.board, row, col, turn)
+                            elif selected_piece.upper() == "R":
+                                posible_moves = chess.piece_moves.rook_moves(game.board, row, col, turn)
 
-                        elif selected_piece.upper() == "K":
-                            posible_moves = chess.piece_moves.king_moves(game.board, row, col, turn)
+                            elif selected_piece.upper() == "N":
+                                posible_moves = chess.piece_moves.knight_moves(game.board, row, col, turn)
 
-                        elif selected_piece.upper() == "Q":
-                            posible_moves = chess.piece_moves.queen_moves(game.board, row, col, turn)
+                            elif selected_piece.upper() == "B":
+                                posible_moves = chess.piece_moves.bishop_moves(game.board, row, col, turn)
 
-                        game.draw_board()
-                        game.draw_pieces()
-                        
-                    else:
+                            elif selected_piece.upper() == "K":
+                                posible_moves = chess.piece_moves.king_moves(game.board, row, col, turn)
+
+                            elif selected_piece.upper() == "Q":
+                                posible_moves = chess.piece_moves.queen_moves(game.board, row, col, turn)
+
+                            game.draw_board()
+                            game.draw_pieces()
+
+                        else:
+                            dragging = False
+                            selected_piece = None
+
+
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1 and dragging:
+                        mouse_x, mouse_y = event.pos
+                        new_col = (mouse_x - border_size) // square_size
+                        new_row = (mouse_y - border_size) // square_size
+                        piece_pos = (new_row, new_col)
                         dragging = False
-                        selected_piece = None
-                        
-                    
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1 and dragging:
-                    mouse_x, mouse_y = event.pos
-                    new_col = (mouse_x - border_size) // square_size
-                    new_row = (mouse_y - border_size) // square_size
-                    piece_pos = (new_row, new_col)
-                    dragging = False
 
-                    if len(posible_moves) != 0:
-                        for i in posible_moves:
-                            if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
+                        if len(posible_moves) != 0:
+                            for i in posible_moves:
+                                if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
 
-                                game.board[new_row][new_col] = game.board[row][col]
-                                game.board[row][col] = ""
+                                    game.board[new_row][new_col] = game.board[row][col]
+                                    game.board[row][col] = ""
 
-                                posible_moves = []
-                                game.draw_board()
-                                game.draw_pieces()
-                                
-                                if turn == "white":
-                                    turn = "black"
-                                else:
-                                    turn = "white"
+                                    posible_moves = []
+                                    game.draw_board()
+                                    game.draw_pieces()
+
+                                    turn = "white" if turn == "black" else "black"
+                                    
+                                    
+            elif two_players == True and turn != my_color: # 2 players
+                if True: # AI turn (against AI)
+                    pass
+                elif True: # another player turn (against another player online)
+                    pass    
