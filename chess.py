@@ -165,91 +165,109 @@ class piece_moves:
         return posible_moves
     
     
-    def check(board, turn, my_color): #not working correctly
+    def check(board, turn, my_color): #not working correctlyd
+        kings = []
         for i in range(8):
             for j in range(8):
-                if board[i][j] == "K":
-                    row = i
-                    col = j
-                    break
-        
-        posible_ataks_rook = [
-            [(row - i, col) for i in range(1, row + 1)],
-            [(row + i, col) for i in range(1, 8 - row)],
-            [(row, col - i) for i in range(1, col + 1)],
-            [(row, col + i) for i in range(1, 8 - col)]
-        ]
-        posible_ataks_bishop = [
-            [(row - i, col - i) for i in range(1, row + 1)],
-            [(row - i, col + i) for i in range(1, row + 1)],
-            [(row + i, col - i) for i in range(1, 8 - row)],
-            [(row + i, col + i) for i in range(1, 8 - row)]
-        ]
-        posible_ataks_knight = [
-            (row + 2, col + 1),
-            (row + 2, col - 1),
-            (row - 2, col + 1),
-            (row - 2, col - 1),
-            (row + 1, col + 2),
-            (row + 1, col - 2),
-            (row - 1, col + 2),
-            (row - 1, col - 2)
-        ]
-        
-        where_to_move = -1 if my_color == turn else 1
-        posible_ataks_pawn = [
-            (row + where_to_move, col - 1),
-            (row + where_to_move, col + 1)
-        ]
-        
+                if board[i][j] in ("K", "k"):
+                    kings.append((i, j))
 
-        for i in posible_ataks_rook:
-            for move in i:
-                if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                    if len(board[move[0]][move[1]]) == 0:
-                        continue
-                    elif board[move[0]][move[1]][0].islower() and board[move[0]][move[1]][0] == "r" or board[move[0]][move[1]][0] == "q":
-                        print("rrook")
-                        return True
+        posible_checks = [[False, (kings[0][0], kings[0][1])], [False, (kings[1][0], kings[1][1])]]
+
+        for king_turn in range(2):
+            row = kings[king_turn][0]
+            col = kings[king_turn][1]
+            
+            posible_ataks_rook = [
+                [(row - i, col) for i in range(1, row + 1)],
+                [(row + i, col) for i in range(1, 8 - row)],
+                [(row, col - i) for i in range(1, col + 1)],
+                [(row, col + i) for i in range(1, 8 - col)]
+            ]
+            posible_ataks_bishop = [
+                [(row - i, col - i) for i in range(1, row + 1)],
+                [(row - i, col + i) for i in range(1, row + 1)],
+                [(row + i, col - i) for i in range(1, 8 - row)],
+                [(row + i, col + i) for i in range(1, 8 - row)]
+            ]
+            posible_ataks_knight = [
+                (row + 2, col + 1),
+                (row + 2, col - 1),
+                (row - 2, col + 1),
+                (row - 2, col - 1),
+                (row + 1, col + 2),
+                (row + 1, col - 2),
+                (row - 1, col + 2),
+                (row - 1, col - 2)
+            ]
+            
+            where_to_move = -1 if (my_color == "black" and board[row][col] == "K") or (my_color == "white" and board[row][col] == "k") else 1
+            posible_ataks_pawn = [
+                (row + where_to_move, col - 1),
+                (row + where_to_move, col + 1)
+            ]
+            
+
+            for i in posible_ataks_rook:
+                for move in i:
+                    if 0 <= move[0] < 8 and 0 <= move[1] < 8:
+                        if len(board[move[0]][move[1]]) == 0:
+                            continue
+                        elif board[move[0]][move[1]][0] in ('r', 'q', 'R', 'Q'):
+                            if (board[row][col] == "k" and board[move[0]][move[1]][0].isupper()) or (board[row][col] == "K" and board[move[0]][move[1]][0].islower()):
+                                print("rrook")
+                                posible_checks[king_turn][0] = True
+                                posible_checks[king_turn].append((move[0], move[1])) 
+                            else:
+                                break
+                        else:
+                            break
                     else:
                         break
-                else:
-                    break
-                
-        for i in posible_ataks_bishop:
-            for move in i:
-                if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                    if len(board[move[0]][move[1]]) == 0:
-                        continue
-                    elif board[move[0]][move[1]][0].islower() and board[move[0]][move[1]][0] == "b" or board[move[0]][move[1]][0] == "q":
-                        print("bishop")
-                        return True
+                    
+            for i in posible_ataks_bishop:
+                for move in i:
+                    if 0 <= move[0] < 8 and 0 <= move[1] < 8:
+                        if len(board[move[0]][move[1]]) == 0:
+                            continue
+                        elif board[move[0]][move[1]][0] in ('b', 'q', 'B', "Q") :
+                            if (board[row][col] == "k" and board[move[0]][move[1]][0].isupper()) or (board[row][col] == "K" and board[move[0]][move[1]][0].islower()):
+                                print("bishop")
+                                posible_checks[king_turn][0] = True
+                                posible_checks[king_turn].append((move[0], move[1])) 
+                            else:
+                                break
+                        else:
+                            break
                     else:
                         break
-                else:
-                    break
-                
-        for i in posible_ataks_knight:
-            if 0 <= i[0] < 8 and 0 <= i[1] < 8:
-                if len(board[i[0]][i[1]]) == 0:
-                    continue
-                elif board[i[0]][i[1]][0].islower() and board[i[0]][i[1]][0] == "n":
-                    print("knight")
-                    return True
-                else:
-                    break
-                
-        for i in posible_ataks_pawn:
-            if 0 <= i[0] < 8 and 0 <= i[1] < 8:
-                if len(board[i[0]][i[1]]) == 0:
-                    continue
-                elif board[i[0]][i[1]][0].islower() and board[i[0]][i[1]][0] == "p":
-                    print("pawn")
-                    return True
-                else:
-                    break
-                
-        return False
+                    
+                    
+            for i in posible_ataks_knight:
+                if 0 <= i[0] < 8 and 0 <= i[1] < 8:
+                    if len(board[i[0]][i[1]]) == 0:
+                        continue
+                    elif board[i[0]][i[1]] in ('n', 'N'):
+                        if (board[row][col] == "k" and board[i[0]][i[1]][0].isupper()) or (board[row][col] == "K" and board[i[0]][i[1]][0].islower()):
+                            print("knight")
+                            posible_checks[king_turn][0] = True
+                            posible_checks[king_turn].append((i[0], i[1])) 
+
+                    
+            for i in posible_ataks_pawn:
+                if 0 <= i[0] < 8 and 0 <= i[1] < 8:
+                    if len(board[i[0]][i[1]]) == 0:
+                        continue
+                    elif board[i[0]][i[1]][0] in ('p', 'P'):
+                        if (board[row][col] == "k" and board[i[0]][i[1]][0].isupper()) or (board[row][col] == "K" and board[i[0]][i[1]][0].islower()):
+                            print("pawn"+ str(i[0]+i[1]))
+                            posible_checks[king_turn][0] = True
+                            posible_checks[king_turn].append((i[0], i[1])) 
+                    else:
+                        break
+                    
+        print(posible_checks)
+        return posible_checks
                 
 
     def check_mate(self, board, row, col): #NOT WORKING
@@ -265,3 +283,7 @@ class piece_moves:
             return True
         else:
             return False
+        
+        
+    def is_stalemate():
+        pass
