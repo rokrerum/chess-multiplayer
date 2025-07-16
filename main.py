@@ -2,6 +2,7 @@ import pygame
 import pygame_menu
 from pygame_menu.examples import create_example_window
 import chess
+import random
 import chess_ai
 import multiplayer
 
@@ -60,23 +61,38 @@ class Main:
         
 class Menu_gui:
     def __init__(self):
-        self.surface = create_example_window('Example - Simple', (600, 400))
+        self.surface = create_example_window('Example - Simple', (600, 500))
+        self.selected_color = "random"
         self.menu = pygame_menu.Menu(
-            height=300,
+            height=400,
             theme=pygame_menu.themes.THEME_BLUE,
             title='Welcome',
             width=400
         )
+        
+        
+    def set_color(self, color_value):
+        self.selected_color = color_value
+        print(f"Wybrano kolor: {color_value}")
+        
 
     def menu_gui(self):
         global user_name
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
+        
+        frame = self.menu.add.frame_h(338, 58)
+        white_button = frame.pack(self.menu.add.button('White', self.set_color, 'white'))
+        random_button = frame.pack(self.menu.add.button('Random', self.set_color, 'random')) 
+        black_button = frame.pack(self.menu.add.button('Black', self.set_color, 'black'))
+        random_button.apply()
+        
         self.menu.add.button('Play solo', self.start_the_game_singleplayer)
         self.menu.add.button('Play ai', self.start_the_game_against_ia)
         self.menu.add.button('Play multiplayer', self.start_the_game_multiplayer)
         self.menu.add.button('Quit', pygame_menu.events.EXIT)
 
         self.menu.enable()
+        self.menu.center_content()
         self.menu.mainloop(self.surface)
         
         
@@ -106,7 +122,7 @@ class Menu_gui:
         game_interface_var.game_interface()
         
         
-class game_gui(Game):
+class game_gui(Game,  Menu_gui):
     def __init__(self):
         super().__init__()
         self.game = Game()
@@ -157,13 +173,10 @@ class game_gui(Game):
                     pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
         
         self.check = chess.piece_moves.check(self.board, turn, my_color)
-        if self.check:
-            print("white wins")
-        if self.check:
-            for i in range(0,8):
-                for j in range(0,8):
-                    if self.board[i][j] == "K":
-                        pygame.draw.rect(screen, (255, 0, 0), (((j+1) *square_size)- (square_size-border_size), ((i+1) *square_size)- (square_size-border_size), square_size, square_size))
+        for i in range(2):
+            if self.check[i][0]:
+                pygame.draw.rect(screen, (255, 0, 0), (((self.check[i][1][1] + 1) *square_size)- (square_size-border_size), ((self.check[i][1][0] +1 ) *square_size)- (square_size-border_size), square_size, square_size))
+                
         pygame.display.update()
         
         
@@ -229,19 +242,30 @@ if __name__ == "__main__":
     selected_piece = None
     posible_moves = []
     
-    
     menu = Menu_gui()
     menu.menu_gui()
+
     game = game_gui()
-    
     game.draw_board()
+    
+    menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color #change color randomly if option random is selected
+    if menu.selected_color == "white": #not
+        my_color = "white"
+        for i in range(8): #this is for reversing the board if player selected white
+            game.board[i].reverse()
+        game.board.reverse()
+    else:
+        my_color = "black"
+        
     game.draw_pieces()
     
+
+    print(menu.selected_color)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                
+            
             if two_players == True and turn == my_color or two_players == False:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
