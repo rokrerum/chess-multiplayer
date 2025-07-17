@@ -28,7 +28,7 @@ class piece_moves:
                 if len(board[row - where_to_move][col]) <= 0:
                     posible_moves.append([row - where_to_move, col])
             
-            if col + 1 < 8 and len(board[row - where_to_move][col + 1]) > 0 and turn_checker(turn, board[row - where_to_move][col + 1]) == False:
+            if col + 1 < 8 and len(board[row - where_to_move][col + 1]) > 0 and turn_checker(turn, board[row - where_to_move][col + 1]) == False: #check if atacked piece is different color
                 posible_moves.append([row - where_to_move, col + 1])
             
             if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and turn_checker(turn, board[row - where_to_move][col - 1]) == False:
@@ -143,7 +143,7 @@ class piece_moves:
         return posible_moves
     
     
-    def king_moves(board, row, col, turn):
+    def king_moves(board, row, col, turn, castling): 
         posible_moves = []
         moves = [
         (row + 1, col - 1),
@@ -155,6 +155,28 @@ class piece_moves:
         (row - 1, col),
         (row - 1, col + 1)
         ]
+        
+        if turn_checker(turn, board[row][col]):
+            print("castling" + str(sum(len(i) for i in board[row][col+1:7])))
+            
+            if board[row][col] == "k":
+                print("castlingw")
+                if castling["white"]["king"] and castling["white"]["Rook-L"] and board[row][0] == "r" and sum(len(i) for i in board[row][1:col]) == 0:
+                    posible_moves.append((row, col - 2, "castling"))
+                    
+                if castling["white"]["king"] and castling["white"]["Rook-R"] and board[row][0] == "r" and sum(len(i) for i in board[row][col+1:7]) == 0:
+                    posible_moves.append((row, col + 2, "castling"))
+                    
+                
+            elif board[row][col] == "K":
+                print("castlingb")
+                if castling["black"]["king"] and castling["black"]["Rook-L"] and board[row][0] == "R" and sum(len(i) for i in board[row][1:col]) == 0:
+                    posible_moves.append((row, col - 2, "castling"))
+                    
+                if castling["black"]["king"] and castling["black"]["Rook-R"] and board[row][0] == "R" and sum(len(i) for i in board[row][col+1:7]) == 0:
+                    posible_moves.append((row, col + 2, "castling"))
+        
+        
         
         if turn_checker(turn, board[row][col]):
             for move in moves:
