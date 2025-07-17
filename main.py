@@ -14,14 +14,14 @@ posible_moves = []
 class Game:
     def __init__(self):
         self.board = [
-            ["r", "n", "b", "q", "k", "b", "n", "r"],
+            ["r", "", "", "", "k", "", "", "r"], #white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
             ["", "", "", "", "q", "", "", ""],
             ["", "", "p", "", "R", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "q", "", "p", "p"],
-            ["P", "P", "P", "P", "", "P", "P", "P"],
-            ["R", "N", "B", "Q", "K", "B", "N", "R"]
+            ["P", "P", "P", "P", "", "P", "P", "P"], 
+            ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
         ]
         
         self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
@@ -29,7 +29,7 @@ class Game:
         self.turn = "white"
         self.move_history = []
         self.en_passant = None
-        self.castling = {"white": {"king": True, "queen": True}, "black": {"king": True, "queen": True}}
+        self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True}, "black": {"king": True, "Rook-L": True, "Rook-R": True}}
         self.halfmove_clock = 0
         self.fullmove_number = 1
         self.check = False
@@ -172,8 +172,9 @@ class game_gui(Game,  Menu_gui):
                 else:
                     pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
         
+        
         self.check = chess.piece_moves.check(self.board, turn, my_color)
-        for i in range(2):
+        for i in range(2):  #this for loop is for drawing the check for the king
             if self.check[i][0]:
                 pygame.draw.rect(screen, (255, 0, 0), (((self.check[i][1][1] + 1) *square_size)- (square_size-border_size), ((self.check[i][1][0] +1 ) *square_size)- (square_size-border_size), square_size, square_size))
                 
@@ -296,7 +297,7 @@ if __name__ == "__main__":
                                 posible_moves = chess.piece_moves.bishop_moves(game.board, row, col, turn)
 
                             elif selected_piece.upper() == "K":
-                                posible_moves = chess.piece_moves.king_moves(game.board, row, col, turn)
+                                posible_moves = chess.piece_moves.king_moves(game.board, row, col, turn, game.castling)
 
                             elif selected_piece.upper() == "Q":
                                 posible_moves = chess.piece_moves.queen_moves(game.board, row, col, turn)
@@ -320,7 +321,42 @@ if __name__ == "__main__":
                         if len(posible_moves) != 0:
                             for i in posible_moves:
                                 if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
-
+                                    
+                                    
+                                    if game.board[row][col] in ("K", "k", "R", "r"): # if you move a king or a rook u cant use it for castling
+                                        if game.board[row][col] in ("K", "k"):
+                                            if game.board[row][col] == "k":
+                                                for state in game.castling["white"]:
+                                                    game.castling["white"][state] = False
+                                            else:
+                                                for state in game.castling["black"]:
+                                                    game.castling["black"][state] = False
+                                                
+                                            
+                                        elif game.board[row][col] in ("R", "r"):
+                                            if game.board[row][col] == "r":
+                                                if col == 0 and row in (0, 7):
+                                                    game.castling["white"]["Rook-L"] = False
+                                                elif col == 7 and row in (0, 7):
+                                                    game.castling["white"]["Rook-R"] = False
+                                                
+                                            else:
+                                                if col == 0 and row in (0, 7):
+                                                    game.castling["black"]["Rook-L"] = False
+                                                elif col == 7 and row in (0, 7):
+                                                    game.castling["black"]["Rook-R"] = False
+                                                    
+                                                    
+                                    print(game.castling)
+                                    if len(i) == 3: #checking if the move is castling and if it is, it will move the rook
+                                        if new_col < col:
+                                            game.board[row][new_col + 1] = game.board[row][0]
+                                            game.board[row][0] = ""
+                                        else:
+                                            game.board[row][new_col - 1] = game.board[row][0]
+                                            game.board[row][7] = ""
+                                            
+                                        
                                     game.board[new_row][new_col] = game.board[row][col]
                                     game.board[row][col] = ""
 
