@@ -28,25 +28,31 @@ class piece_moves:
         where_to_move = 1 if my_color == turn else -1
         
         if self.turn_checker(turn, board[row][col]): #check if the piece is the same color as the turn
-            #if (len(check(board, turn, my_color)[0]) <= 2 and turn == "white") or (len(check(board, turn, my_color)[1]) <= 2 and turn == "black"):
-            #    print("brak szachu przy ruchu piona")
+            self.board_after_move = [list(row) for row in board]
+            self.board_after_move[row - where_to_move][col] = board[row][col]
+            self.board_after_move[row][col] = ""
+            if len(board[row - where_to_move][col]) == 0 and self.if_not_checke_after(self.board_after_move, turn, my_color):
+                posible_moves.append([row - where_to_move, col])
+                
+                self.board_after_move = [list(row) for row in board]
+                self.board_after_move[row - (where_to_move * 2)][col] = board[row][col]
+                self.board_after_move[row][col] = ""    
+                if len(board[row - (where_to_move * 2)][col]) == 0  and (row == 6 and my_color == turn) or (row == 1 and my_color != turn) and self.if_not_checke_after(self.board_after_move, turn, my_color):
+                    posible_moves.append([row - (where_to_move * 2), col])
             
-            if row == 6 and my_color == turn or row == 1 and my_color != turn:
-                if len(board[row - where_to_move][col]) == 0:
-                    posible_moves.append([row - where_to_move, col])
+            if col + 1 < 8:
+                self.board_after_move = [list(row) for row in board]
+                self.board_after_move[row - where_to_move][col + 1] = board[row][col]
+                self.board_after_move[row][col] = ""
+                if len(board[row - where_to_move][col + 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col + 1]) == False and self.if_not_checke_after(self.board_after_move, turn, my_color): #check if atacked piece is different color
+                    posible_moves.append([row - where_to_move, col + 1])
                     
-                    if len(board[row - (where_to_move * 2)][col]) == 0:
-                        posible_moves.append([row - (where_to_move * 2), col])
-
-            else:
-                if len(board[row - where_to_move][col]) <= 0:
-                    posible_moves.append([row - where_to_move, col])
-            
-            if col + 1 < 8 and len(board[row - where_to_move][col + 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col + 1]) == False: #check if atacked piece is different color
-                posible_moves.append([row - where_to_move, col + 1])
-            
-            if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col - 1]) == False:
-                posible_moves.append([row - where_to_move, col - 1])
+            if col - 1 >= 0:
+                self.board_after_move = [list(row) for row in board]
+                self.board_after_move[row - where_to_move][col - 1] = board[row][col]
+                self.board_after_move[row][col] = ""
+                if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col - 1]) == False and self.if_not_checke_after(self.board_after_move, turn, my_color):
+                    posible_moves.append([row - where_to_move, col - 1])
         else:
             posible_moves = []
                 
