@@ -358,6 +358,18 @@ if __name__ == "__main__":
                                             game.board[row][new_col - 1] = game.board[row][0]
                                             game.board[row][7] = ""
                                             
+                                            
+                                    if game.board[row][col] in ("p", "P"): # if pawn moves to the last row, it will be promoted
+                                        if (my_color == "white" and turn == "white" and new_row == 0) or (my_color == "black" and turn == "black" and new_row == 0): #promotion of the client player
+                                            pass
+                                        
+                                        elif (my_color == "white" and turn == "black" and new_row == 7) or (my_color == "white" and turn == "black" and new_row == 7):  
+                                            if two_players == False: # if it is silgle player, the player can choose what piece to promote to
+                                                pass 
+                                            
+                                            else: # if it is multiplayer, the AI will choose what piece to promote to
+                                                pass
+                                            
                                         
                                     game.board[new_row][new_col] = game.board[row][col]
                                     game.board[row][col] = ""
