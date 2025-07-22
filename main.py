@@ -5,6 +5,7 @@ import chess
 import random
 import chess_ai
 import multiplayer
+import time
 
 
 global posible_moves
@@ -19,7 +20,7 @@ class Game:
             ["", "", "", "", "q", "", "", ""],
             ["", "", "p", "", "R", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "q", "", "p", "p"],
+            ["", "", "p", "", "q", "", "p", "p"],
             ["P", "P", "P", "P", "", "P", "P", "P"], 
             ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
         ]
@@ -232,6 +233,26 @@ class game_gui(Game,  Menu_gui):
         pygame.display.update()
         
         
+    def show_promotion_menu(self):
+        # Pobierz grafiki figur
+        queen_img = pygame.image.load("assets/qw.png")
+        rook_img = pygame.image.load("assets/rw.png")
+        bishop_img = pygame.image.load("assets/bw.png")
+        knight_img = pygame.image.load("assets/nw.png")
+
+        # Narysuj tło menu
+        pygame.draw.rect(screen, (200, 200, 200), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5))  # Prostokąt
+        pygame.draw.rect(screen, (50, 50, 50), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5), 3)   # Ramka
+
+        # Wyświetl ikony
+        screen.blit(queen_img, (square_size * 2.3, square_size * 4))
+        screen.blit(rook_img, (square_size * 3.4, square_size * 4))
+        screen.blit(bishop_img, (square_size * 4.6, square_size * 4))
+        screen.blit(knight_img, (square_size * 5.7, square_size * 4))
+
+        pygame.display.update()
+        
+        
         
 if __name__ == "__main__":
         #game runing###########################
@@ -360,17 +381,38 @@ if __name__ == "__main__":
                                             
                                             
                                     if game.board[row][col] in ("p", "P"): # if pawn moves to the last row, it will be promoted
-                                        if (my_color == "white" and turn == "white" and new_row == 0) or (my_color == "black" and turn == "black" and new_row == 0): #promotion of the client player
-                                            pass
-                                        
-                                        elif (my_color == "white" and turn == "black" and new_row == 7) or (my_color == "white" and turn == "black" and new_row == 7):  
+                                        if new_row in (0, 7): #promotion of the client player
                                             if two_players == False: # if it is silgle player, the player can choose what piece to promote to
-                                                pass 
+
+                                                game.show_promotion_menu()
+                                                waiting = True
+                                                while waiting:
+                                                    for event in pygame.event.get():
+                                                        if event.type == pygame.MOUSEBUTTONDOWN:
+                                                            mouse_x, mouse_y = event.pos
+                                                            x, y = square_size, square_size
+                                                            
+                                                            
+                                                            # Sprawdź, który przycisk został kliknięty
+                                                            if x * 2.3 <= mouse_x <= (x * 2.3) + 64 and y * 4 <= mouse_y <= y * 4 + 100: #the promotion menu is not working correctly the clicking boxes are not set correctly
+                                                                game.board[row][col] = "q" if turn == "white" else "Q"
+                                                                waiting = False
+                                                                
+                                                            elif x + 100 <= mouse_x <= x + 200 and y * 4 <= mouse_y <= y * 4 + 100:
+                                                                game.board[row][col] = "r" if turn == "white" else "R"
+                                                                waiting = False
+                                                                
+                                                            elif x + 200 <= mouse_x <= x + 300 and y * 4 <= mouse_y <= y * 4 + 100:
+                                                                game.board[row][col] = "b" if turn == "white" else "B"
+                                                                waiting = False
+                                                                
+                                                            elif x + 300 <= mouse_x <= x + 400 and y * 4 <= mouse_y <= y * 4 + 100:
+                                                                game.board[row][col] = "n" if turn == "white" else "N"
+                                                                waiting = False
                                             
-                                            else: # if it is multiplayer, the AI will choose what piece to promote to
+                                            else: # if it is multiplayer, the AI or another player will choose what piece to promote to
                                                 pass
                                             
-                                        
                                     game.board[new_row][new_col] = game.board[row][col]
                                     game.board[row][col] = ""
 
@@ -386,3 +428,5 @@ if __name__ == "__main__":
                     pass
                 elif True: # another player turn (against another player online)
                     pass    
+                
+#made by: rokrerum
