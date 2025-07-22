@@ -34,11 +34,12 @@ class piece_moves:
             if len(board[row - where_to_move][col]) == 0 and self.if_not_checke_after(self.board_after_move, turn, my_color):
                 posible_moves.append([row - where_to_move, col])
                 
-                self.board_after_move = [list(row) for row in board]
-                self.board_after_move[row - (where_to_move * 2)][col] = board[row][col]
-                self.board_after_move[row][col] = ""    
-                if len(board[row - (where_to_move * 2)][col]) == 0  and (row == 6 and my_color == turn) or (row == 1 and my_color != turn) and self.if_not_checke_after(self.board_after_move, turn, my_color):
-                    posible_moves.append([row - (where_to_move * 2), col])
+                if 0 <= row - (where_to_move * 2) <= 7:
+                    self.board_after_move = [list(row) for row in board]
+                    self.board_after_move[row - (where_to_move * 2)][col] = board[row][col]
+                    self.board_after_move[row][col] = ""    
+                    if len(board[row - (where_to_move * 2)][col]) == 0  and (row == 6 and my_color == turn) or (row == 1 and my_color != turn) and self.if_not_checke_after(self.board_after_move, turn, my_color):
+                        posible_moves.append([row - (where_to_move * 2), col])
             
             if col + 1 < 8:
                 self.board_after_move = [list(row) for row in board]
@@ -348,14 +349,20 @@ class piece_moves:
         return posible_checks
                 
 
-    def check_mate(self, board, row, col): #NOT WORKING
+    def check_mate(self, board, turn , my_color): #NOT WORKING
         posible_moves = []
-        posible_moves.extend(self.pawn_moves(board, row, col))
-        posible_moves.extend(self.rook_moves(board, row, col))
-        posible_moves.extend(self.bishop_moves(board, row, col))
-        posible_moves.extend(self.knight_moves(board, row, col))
-        posible_moves.extend(self.queen_moves(board, row, col))
-        posible_moves.extend(self.king_moves(board, row, col))
+        
+        for i in range(8):
+            for j in range(8): #check if for each piece of the color there are any posible moves that will not be check
+                pass
+        
+        posible_moves.append(self.pawn_moves()) 
+        posible_moves.append(self.knight_moves())
+        posible_moves.append(self.bishop_moves())
+        posible_moves.append(self.rook_moves())    
+        posible_moves.append(self.queen_moves())
+        posible_moves.append(self.king_moves())
+
 
         if len(posible_moves) == 0:
             return True
@@ -365,3 +372,5 @@ class piece_moves:
         
     def is_stalemate():
         pass
+    
+#made by: rokrerum
