@@ -14,16 +14,16 @@ class piece_moves:
         return False
     
     
-    def if_not_checke_after(self, board_after_move, turn, my_color): # not working
-        if self.check(board_after_move, my_color)[0][0] and turn == "white": #if there is no check
+    def if_not_checke_after(self, board_after_move, turn, my_color):
+        if self.check(board_after_move, my_color)[0][0] and turn == "white": #if there is check
             return False
         elif self.check(board_after_move, my_color)[1][0] and turn == "black":
             return False
-        
+
         return True
     
 
-    def pawn_moves(self, board, row, col, turn, my_color): # need to check if there is atack on king after move or  before move
+    def pawn_moves(self, board, row, col, turn, my_color): # need to check if there is atack on king after move or before move
         posible_moves = []
         where_to_move = 1 if my_color == turn else -1
         
@@ -248,8 +248,8 @@ class piece_moves:
                 elif board[i][j] == "K":
                     kings[1] = [i, j]
         
-        if len(kings[0]) == 0 or len(kings[1]) == 0 :
-            return [[True], [True]]  # albo obsłuż brak jednego króla
+        if len(kings[0]) == 0 or len(kings[1]) == 0: #if there is no king this if will pass that both kings are in check so move isn't posible
+            return [[True], [True]]  
 
         posible_checks = [[False, (kings[0][0], kings[0][1])], [False, (kings[1][0], kings[1][1])]]
 
@@ -349,25 +349,38 @@ class piece_moves:
         return posible_checks
                 
 
-    def check_mate(self, board, turn , my_color): #NOT WORKING
+    def check_mate(self, board, my_color, turn, castling): #not working yet
+        mate = [False, False]
         posible_moves = []
+        check = self.check(board, my_color)
         
-        for i in range(8):
-            for j in range(8): #check if for each piece of the color there are any posible moves that will not be check
-                pass
+        if check[0][0] or check[1][0]:
+            for color in range(2):
+                for r in range(8):
+                    for c in range(8):
+                        if (my_color == "white" and color == 0 and board[r][c].islower()) or (my_color == "black" and color == 1 and board[r][c].isupper()):
+                            if board[r][c].lower() == "p":
+                                posible_moves.append(self.pawn_moves(board, r, c, turn, my_color)) 
+
+                            elif board[r][c].lower() == "n":
+                                posible_moves.append(self.knight_moves(board, r, c, turn, my_color))
+
+                            elif board[r][c].lower() == "b":
+                                posible_moves.append(self.bishop_moves(board, r, c, turn, my_color))
+
+                            elif board[r][c].lower() == "r":
+                                posible_moves.append(self.rook_moves(board, r, c, turn, my_color))
+
+                            elif board[r][c].lower() == "q":
+                                posible_moves.append(self.queen_moves(board, r, c, turn, my_color))
+
+                            elif board[r][c].lower() == "k":
+                                posible_moves.append(self.king_moves(board, r, c, turn, castling, my_color))
+
+                if len(posible_moves) > 0:
+                    mate[color] = True
         
-        posible_moves.append(self.pawn_moves()) 
-        posible_moves.append(self.knight_moves())
-        posible_moves.append(self.bishop_moves())
-        posible_moves.append(self.rook_moves())    
-        posible_moves.append(self.queen_moves())
-        posible_moves.append(self.king_moves())
-
-
-        if len(posible_moves) == 0:
-            return True
-        else:
-            return False
+        return mate
         
         
     def is_stalemate():
