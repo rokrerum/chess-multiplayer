@@ -234,17 +234,17 @@ class game_gui(Game,  Menu_gui):
         
         
     def show_promotion_menu(self):
-        # Pobierz grafiki figur
+        # this is for loading figure graphics
         queen_img = pygame.image.load("assets/qw.png")
         rook_img = pygame.image.load("assets/rw.png")
         bishop_img = pygame.image.load("assets/bw.png")
         knight_img = pygame.image.load("assets/nw.png")
 
-        # Narysuj tło menu
-        pygame.draw.rect(screen, (200, 200, 200), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5))  # Prostokąt
-        pygame.draw.rect(screen, (50, 50, 50), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5), 3)   # Ramka
+        # it draws menu of promotion
+        pygame.draw.rect(screen, (200, 200, 200), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5))  # 
+        pygame.draw.rect(screen, (50, 50, 50), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5), 3)   # border
 
-        # Wyświetl ikony
+        # it show icons ofpieces u can promote into
         screen.blit(queen_img, (square_size * 2.3, square_size * 4))
         screen.blit(rook_img, (square_size * 3.4, square_size * 4))
         screen.blit(bishop_img, (square_size * 4.6, square_size * 4))
@@ -269,6 +269,8 @@ if __name__ == "__main__":
 
     game = game_gui()
     game.draw_board()
+    
+    chess_moves = chess.piece_moves()
     
     menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color #change color randomly if option random is selected
     if menu.selected_color == "white": #not
@@ -305,8 +307,7 @@ if __name__ == "__main__":
                             offset_x = mouse_x - (col * square_size + square_size // 2)
                             offset_y = mouse_y - (row * square_size + square_size // 2)
                             
-                            
-                            chess_moves = chess.piece_moves()
+                        
                             if selected_piece.upper() == "P": 
                                 posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color)
 
@@ -392,21 +393,20 @@ if __name__ == "__main__":
                                                             mouse_x, mouse_y = event.pos
                                                             x, y = square_size, square_size
                                                             
-                                                            
-                                                            # Sprawdź, który przycisk został kliknięty
-                                                            if x * 2.3 <= mouse_x <= (x * 2.3) + 64 and y * 4 <= mouse_y <= y * 4 + 100: #the promotion menu is not working correctly the clicking boxes are not set correctly
+                                                            # this checks if player clicked on the icons of pieces u can promote your pown into
+                                                            if x * 2.3 <= mouse_x <= (x * 2.3) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                 game.board[row][col] = "q" if turn == "white" else "Q"
                                                                 waiting = False
                                                                 
-                                                            elif x + 100 <= mouse_x <= x + 200 and y * 4 <= mouse_y <= y * 4 + 100:
+                                                            elif x * 3.4 <= mouse_x <= (x * 3.4) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                 game.board[row][col] = "r" if turn == "white" else "R"
                                                                 waiting = False
                                                                 
-                                                            elif x + 200 <= mouse_x <= x + 300 and y * 4 <= mouse_y <= y * 4 + 100:
+                                                            elif x * 4.6 <= mouse_x <= (x * 4.6) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                 game.board[row][col] = "b" if turn == "white" else "B"
                                                                 waiting = False
                                                                 
-                                                            elif x + 300 <= mouse_x <= x + 400 and y * 4 <= mouse_y <= y * 4 + 100:
+                                                            elif x * 5.7 <= mouse_x <= (x * 5.7) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                 game.board[row][col] = "n" if turn == "white" else "N"
                                                                 waiting = False
                                             
@@ -416,6 +416,12 @@ if __name__ == "__main__":
                                     game.board[new_row][new_col] = game.board[row][col]
                                     game.board[row][col] = ""
 
+
+                                    mate =  chess_moves.check_mate(game.board, my_color, turn, game.castling) #not working yet
+                                    if mate[0] or mate[1]:
+                                        print("game has ended becouse of no posible move for player")    
+
+                                        
                                     posible_moves = []
                                     game.draw_board()
                                     game.draw_pieces()
