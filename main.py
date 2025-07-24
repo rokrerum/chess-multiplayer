@@ -15,14 +15,14 @@ posible_moves = []
 class Game:
     def __init__(self):
         self.board = [
-            ["r", "", "", "", "k", "", "R", "r"], #white
+            ["r", "", "", "", "k", "", "", "r"], #white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
             ["", "", "", "", "q", "", "", ""],
-            ["", "", "p", "", "R", "", "", ""],
+            ["", "", "p", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "p", "", "q", "", "p", "p"],
             ["P", "P", "P", "P", "", "P", "P", "P"], 
-            ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
+            ["R", "N", "B", "", "K", "B", "p", ""] #black
         ]
         
         self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
@@ -251,7 +251,32 @@ class game_gui(Game,  Menu_gui):
         screen.blit(knight_img, (square_size * 5.7, square_size * 4))
 
         pygame.display.update()
+    
+    
+    def game_ended(self, what_happend, turn):
+        font_win_text = pygame.font.Font('freesansbold.ttf', int(border_size * 1.7))
+        font_button = pygame.font.Font('freesansbold.ttf', border_size)
         
+        pygame.draw.rect(screen, (200, 200, 200), (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5))  # 
+        pygame.draw.rect(screen, (50, 50, 50), (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5), 3)   # border
+        
+        if what_happend == "mate":
+            who_wins = "white" if turn == "black" else "black"
+            text = font_win_text.render(f"{turn.capitalize()} wins", True, (2, 2, 1),)
+            screen.blit(text, (square_size * 2.1, square_size * 3.35, square_size * 2, square_size * 0.75)) 
+        
+        elif what_happend == "stalemate":
+            text = font_win_text.render("Stalemate", True, (2, 2, 1),)
+            screen.blit(text, (square_size * 2.1, square_size * 3.35, square_size * 2, square_size * 0.75)) 
+        
+        pygame.draw.rect(screen, (200, 200, 200), (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75))  # 
+        pygame.draw.rect(screen, (50, 50, 50), (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75), 3)   # border
+        
+        text = font_button.render("Menu", True, (2, 2, 1),)
+        screen.blit(text, (square_size * 3.85, square_size * 5.35, square_size * 2, square_size * 0.75)) 
+
+
+        pygame.display.update()
         
         
 if __name__ == "__main__":
@@ -345,8 +370,7 @@ if __name__ == "__main__":
                         if len(posible_moves) != 0:
                             for i in posible_moves:
                                 if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
-                                    
-                                    
+                                
                                     if game.board[row][col] in ("K", "k", "R", "r"): # if you move a king or a rook u cant use it for castling
                                         if game.board[row][col] in ("K", "k"):
                                             if game.board[row][col] == "k":
@@ -417,14 +441,32 @@ if __name__ == "__main__":
                                     game.board[row][col] = ""
 
 
-                                    mate =  chess_moves.check_mate(game.board, my_color, turn, game.castling) #not working yet
+                                    mate =  chess_moves.check_mate(game.board, my_color, game.castling) #this shows end window after one of the players is mated
                                     if mate[0] or mate[1]:
-                                        print("game has ended becouse of no posible move for player")    
-
+                                        game.game_ended("mate", turn)
+                                        waiting = True
+                                        while waiting:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.MOUSEBUTTONDOWN:
+                                                    mouse_x, mouse_y = event.pos
+                                                    x, y = square_size, square_size
+                                                    
+                                                    if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
+                                                        waiting = False
+                                                        #need to add better returnning to menu like reshaping window
+                                                        time.sleep(2)
+                                                        menu.menu_gui()
+                                                              
+                                        
+                                    #stalemate =  chess_moves.is_stalemate()
+                                    #if stalemate:
+                                    #    pass
+                                        
                                         
                                     posible_moves = []
                                     game.draw_board()
                                     game.draw_pieces()
+
 
                                     turn = "white" if turn == "black" else "black"
                                     
