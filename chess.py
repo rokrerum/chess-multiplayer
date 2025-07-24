@@ -77,14 +77,11 @@ class piece_moves:
                         self.board_after_move[move[0]][move[1]] = board[row][col]
                         self.board_after_move[row][col] = ""
                         
-                        print(move)
                         if len(board[move[0]][move[1]]) == 0: #if the space is empty
                             if self.if_not_checke_after(self.board_after_move, turn, my_color):
-                                print("brak szachu przy ruchu wiezy11")
                                 posible_moves.append(move)
                             
                         elif self.turn_checker(turn, board[move[0]][move[1]]) == False: #check if the piece is different color
-                            print("brak szachu przy ruchu wiezy22")
                             if self.if_not_checke_after(self.board_after_move, turn, my_color):
                                 posible_moves.append(move)
                             break
@@ -92,7 +89,6 @@ class piece_moves:
                         else: #if the piece is the same color
                             break
                         
-        print("koniec ruchu wiezy")
         return posible_moves
     
     
@@ -204,10 +200,7 @@ class piece_moves:
         ]
         
         if self.turn_checker(turn, board[row][col]):
-            print("castling" + str(sum(len(i) for i in board[row][col+1:7])))
-            
             if board[row][col] == "k":
-                print("castlingw")
                 if castling["white"]["king"] and castling["white"]["Rook-L"] and board[row][0] == "r" and sum(len(i) for i in board[row][1:col]) == 0: #need to add checking if ther is check
                     posible_moves.append((row, col - 2, "castling"))
                     
@@ -216,7 +209,6 @@ class piece_moves:
                     
                 
             elif board[row][col] == "K":
-                print("castlingb")
                 if castling["black"]["king"] and castling["black"]["Rook-L"] and board[row][0] == "R" and sum(len(i) for i in board[row][1:col]) == 0:
                     posible_moves.append((row, col - 2, "castling"))
                     
@@ -326,9 +318,8 @@ class piece_moves:
             for r, c in posible_ataks_knight:
                 if 0 <= r < 8 and 0 <= c < 8:
                     if board[r][c] in ('n', 'N'):
-                        print("knight:  ", board[row][col] == "k" and board[r][c][0].isupper(), " |  ", board[r][c], board[row][col])
                         if (board[row][col] == "k" and board[r][c].isupper()) or (board[row][col] == "K" and board[r][c][0].islower()):
-                            print("knight")
+                            #print("knight")
                             posible_checks[king_turn][0] = True
                             posible_checks[king_turn].append((r, c)) 
                             
@@ -345,41 +336,47 @@ class piece_moves:
                     else:
                         break
                     
-        print(posible_checks)
         return posible_checks
                 
 
-    def check_mate(self, board, my_color, turn, castling): #not working yet
+    def check_mate(self, board, my_color, castling): #not working yet
         mate = [False, False]
         posible_moves = []
         check = self.check(board, my_color)
+        color = ["white", "black"]
         
-        if check[0][0] or check[1][0]:
-            for color in range(2):
+        
+        for color_turn in range(2):
+            if check[color_turn][0]:
                 for r in range(8):
                     for c in range(8):
-                        if (my_color == "white" and color == 0 and board[r][c].islower()) or (my_color == "black" and color == 1 and board[r][c].isupper()):
+                        if (color_turn == 0 and board[r][c].islower()) or (color_turn == 1 and board[r][c].isupper()):
                             if board[r][c].lower() == "p":
-                                posible_moves.append(self.pawn_moves(board, r, c, turn, my_color)) 
+                                posible_moves.extend(self.pawn_moves(board, r, c, color[color_turn], my_color)) 
 
                             elif board[r][c].lower() == "n":
-                                posible_moves.append(self.knight_moves(board, r, c, turn, my_color))
+                                posible_moves.extend(self.knight_moves(board, r, c, color[color_turn], my_color))
 
                             elif board[r][c].lower() == "b":
-                                posible_moves.append(self.bishop_moves(board, r, c, turn, my_color))
+                                posible_moves.extend(self.bishop_moves(board, r, c, color[color_turn], my_color))
 
                             elif board[r][c].lower() == "r":
-                                posible_moves.append(self.rook_moves(board, r, c, turn, my_color))
+                                posible_moves.extend(self.rook_moves(board, r, c, color[color_turn], my_color))
+                                print("wierza ma ruchy: ", self.rook_moves(board, r, c, color[color_turn], my_color), color[color_turn])
 
                             elif board[r][c].lower() == "q":
-                                posible_moves.append(self.queen_moves(board, r, c, turn, my_color))
+                                posible_moves.extend(self.queen_moves(board, r, c, color[color_turn], my_color))
 
                             elif board[r][c].lower() == "k":
-                                posible_moves.append(self.king_moves(board, r, c, turn, castling, my_color))
+                                posible_moves.extend(self.king_moves(board, r, c, color[color_turn], castling, my_color))
 
-                if len(posible_moves) > 0:
-                    mate[color] = True
-        
+                moves = sum(len(i) for i in posible_moves) / 2
+                print("there is ", moves, " posible moves")
+                if moves == 0:
+                    mate[color_turn] = True
+                posible_moves = []
+                
+        print(mate, " | ", posible_moves)
         return mate
         
         
