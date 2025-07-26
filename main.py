@@ -5,7 +5,6 @@ import chess
 import random
 import chess_ai
 import multiplayer
-import time
 
 
 global posible_moves
@@ -15,21 +14,21 @@ posible_moves = []
 class Game:
     def __init__(self):
         self.board = [
-            ["r", "", "", "", "k", "", "", "r"], #white
+            ["r", "n", "b", "q", "k", "b", "n", "r"], #white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
             ["", "", "", "", "q", "", "", ""],
-            ["", "", "p", "", "", "", "", ""],
+            ["", "", "p", "", "", "", "P", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "p", "", "q", "", "p", "p"],
-            ["P", "P", "P", "P", "", "P", "P", "P"], 
-            ["R", "N", "B", "", "K", "B", "p", ""] #black
+            ["", "", "", "", "", "", "", ""], 
+            ["", "", "", "", "K", "", "", ""] #black
         ]
         
         self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
         
         self.turn = "white"
         self.move_history = []
-        self.en_passant = None
+        self.en_passant = [False]
         self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True}, "black": {"king": True, "Rook-L": True, "Rook-R": True}}
         self.halfmove_clock = 0
         self.fullmove_number = 1
@@ -95,7 +94,6 @@ class Menu_gui:
         self.menu.enable()
         self.menu.center_content()
         self.menu.mainloop(self.surface)
-        
         
         
     def start_the_game_singleplayer(self) -> None:
@@ -267,7 +265,7 @@ class game_gui(Game,  Menu_gui):
         
         elif what_happend == "stalemate":
             text = font_win_text.render("Stalemate", True, (2, 2, 1),)
-            screen.blit(text, (square_size * 2.1, square_size * 3.35, square_size * 2, square_size * 0.75)) 
+            screen.blit(text, (square_size * 2.4, square_size * 3.35, square_size * 2, square_size * 0.75)) 
         
         pygame.draw.rect(screen, (200, 200, 200), (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75))  # 
         pygame.draw.rect(screen, (50, 50, 50), (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75), 3)   # border
@@ -334,7 +332,7 @@ if __name__ == "__main__":
                             
                         
                             if selected_piece.upper() == "P": 
-                                posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color)
+                                posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color, game.en_passant)
 
                             elif selected_piece.upper() == "R":
                                 posible_moves = chess_moves.rook_moves(game.board, row, col, turn, my_color)
@@ -397,13 +395,20 @@ if __name__ == "__main__":
                                                     
                                     print(game.castling)
                                     if len(i) == 3: #checking if the move is castling and if it is, it will move the rook
-                                        if new_col < col:
-                                            game.board[row][new_col + 1] = game.board[row][0]
-                                            game.board[row][0] = ""
-                                        else:
-                                            game.board[row][new_col - 1] = game.board[row][0]
-                                            game.board[row][7] = ""
-                                            
+                                        if game.board[row][col].lower() == "k":
+                                            if new_col < col:
+                                                game.board[row][new_col + 1] = game.board[row][0]
+                                                game.board[row][0] = ""
+                                            else:
+                                                game.board[row][new_col - 1] = game.board[row][0]
+                                                game.board[row][7] = ""
+                                                
+                                        elif game.board[row][col].lower() == "p": 
+                                            game.en_passant = [True, row, col]
+                                    
+                                    else:
+                                        game.en_passant = [False]
+                                        
                                             
                                     if game.board[row][col] in ("p", "P"): # if pawn moves to the last row, it will be promoted
                                         if new_row in (0, 7): #promotion of the client player
@@ -441,8 +446,9 @@ if __name__ == "__main__":
                                     game.board[row][col] = ""
 
 
-                                    mate =  chess_moves.check_mate(game.board, my_color, game.castling) #this shows end window after one of the players is mated
+                                    mate =  chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant) #this shows end window after one of the players is mated
                                     if mate[0] or mate[1]:
+                                        print("mate")
                                         game.game_ended("mate", turn)
                                         waiting = True
                                         while waiting:
@@ -454,20 +460,30 @@ if __name__ == "__main__":
                                                     if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
                                                         waiting = False
                                                         #need to add better returnning to menu like reshaping window
-                                                        time.sleep(2)
                                                         menu.menu_gui()
                                                               
                                         
-                                    #stalemate =  chess_moves.is_stalemate()
-                                    #if stalemate:
-                                    #    pass
-                                        
+                                    stalemate =  chess_moves.is_stalemate(game.board, my_color, game.castling, turn)
+                                    if stalemate[0] or stalemate[1]:
+                                        print("stalemate")
+                                        game.game_ended("stalemate", turn)
+                                        waiting = True
+                                        while waiting:
+                                            for event in pygame.event.get():
+                                                if event.type == pygame.MOUSEBUTTONDOWN:
+                                                    mouse_x, mouse_y = event.pos
+                                                    x, y = square_size, square_size
+                                                    
+                                                    if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
+                                                        waiting = False
+                                                        #need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
+                                                        menu.menu_gui()
+                                                              
                                         
                                     posible_moves = []
                                     game.draw_board()
                                     game.draw_pieces()
-
-
+                                    
                                     turn = "white" if turn == "black" else "black"
                                     
                                     
