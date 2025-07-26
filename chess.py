@@ -2,6 +2,7 @@ class piece_moves:
     def __init__(self):
         self.board_after_move = []
         self.posible_moves = []
+        
     
     
     def turn_checker(self, turn, piece):
@@ -23,9 +24,10 @@ class piece_moves:
         return True
     
 
-    def pawn_moves(self, board, row, col, turn, my_color): # need to check if there is atack on king after move or before move
+    def pawn_moves(self, board, row, col, turn, my_color, en_passant):
         posible_moves = []
         where_to_move = 1 if my_color == turn else -1
+        print(en_passant)
         
         if self.turn_checker(turn, board[row][col]): #check if the piece is the same color as the turn
             self.board_after_move = [list(row) for row in board]
@@ -39,13 +41,20 @@ class piece_moves:
                     self.board_after_move[row - (where_to_move * 2)][col] = board[row][col]
                     self.board_after_move[row][col] = ""    
                     if len(board[row - (where_to_move * 2)][col]) == 0  and (row == 6 and my_color == turn) or (row == 1 and my_color != turn) and self.if_not_checke_after(self.board_after_move, turn, my_color):
-                        posible_moves.append([row - (where_to_move * 2), col])
-            
+                        
+                        if (0 <= col + 1 <= 7 and board[row - (where_to_move * 2)][col + 1].lower() == "p" and board[row - (where_to_move * 2)][col + 1] != board[row][col]) or \
+                            (0 <= col - 1 <= 7 and board[row - (where_to_move * 2)][col - 1].lower() == "p"and board[row - (where_to_move * 2)][col - 1] != board[row][col]): 
+                            posible_moves.append([row - (where_to_move * 2), col, ("el pas")])
+                            print("enpasso")
+                        else:
+                            print("enpasso nie")
+                            posible_moves.append([row - (where_to_move * 2), col])
+                                    
             if col + 1 < 8:
                 self.board_after_move = [list(row) for row in board]
                 self.board_after_move[row - where_to_move][col + 1] = board[row][col]
                 self.board_after_move[row][col] = ""
-                if len(board[row - where_to_move][col + 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col + 1]) == False and self.if_not_checke_after(self.board_after_move, turn, my_color): #check if atacked piece is different color
+                if len(board[row - where_to_move][col + 1]) > 0and self.if_not_checke_after(self.board_after_move, turn, my_color) and self.turn_checker(turn, board[row - where_to_move][col + 1]) == False : #check if atacked piece is different color
                     posible_moves.append([row - where_to_move, col + 1])
                     
             if col - 1 >= 0:
@@ -54,9 +63,16 @@ class piece_moves:
                 self.board_after_move[row][col] = ""
                 if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col - 1]) == False and self.if_not_checke_after(self.board_after_move, turn, my_color):
                     posible_moves.append([row - where_to_move, col - 1])
+                    
+            #checks if en passant is posible       
+            if en_passant[0] and row == en_passant[1] and (((col + 1) == en_passant[2] and board[en_passant[1][col + 1]] == "") or ((col - 1) == en_passant[2] and board[en_passant[1][col + 1]] == "")): #not works yet
+                print("en_passant works")
+                posible_moves.append([row - where_to_move, col - 1])
+            
         else:
             posible_moves = []
                 
+        print(posible_moves)
         return posible_moves
     
        
@@ -201,19 +217,21 @@ class piece_moves:
         
         if self.turn_checker(turn, board[row][col]):
             if board[row][col] == "k":
-                if castling["white"]["king"] and castling["white"]["Rook-L"] and board[row][0] == "r" and sum(len(i) for i in board[row][1:col]) == 0: #need to add checking if ther is check
-                    posible_moves.append((row, col - 2, "castling"))
+                if self.check(board, my_color)[0][0] == False:
+                    if castling["white"]["king"] and castling["white"]["Rook-L"] and board[row][0] == "r" and sum(len(i) for i in board[row][1:col]) == 0: #need to add checking if ther is check
+                        posible_moves.append((row, col - 2, "castling"))
                     
-                if castling["white"]["king"] and castling["white"]["Rook-R"] and board[row][0] == "r" and sum(len(i) for i in board[row][col+1:7]) == 0:
-                    posible_moves.append((row, col + 2, "castling"))
+                    if castling["white"]["king"] and castling["white"]["Rook-R"] and board[row][7] == "r" and sum(len(i) for i in board[row][col+1:7]) == 0:
+                        posible_moves.append((row, col + 2, "castling"))
                     
                 
             elif board[row][col] == "K":
-                if castling["black"]["king"] and castling["black"]["Rook-L"] and board[row][0] == "R" and sum(len(i) for i in board[row][1:col]) == 0:
-                    posible_moves.append((row, col - 2, "castling"))
-                    
-                if castling["black"]["king"] and castling["black"]["Rook-R"] and board[row][0] == "R" and sum(len(i) for i in board[row][col+1:7]) == 0:
-                    posible_moves.append((row, col + 2, "castling"))
+                if self.check(board, my_color)[1][0] == False:
+                    if castling["black"]["king"] and castling["black"]["Rook-L"] and board[row][0] == "R" and sum(len(i) for i in board[row][1:col]) == 0:
+                        posible_moves.append((row, col - 2, "castling"))
+                        
+                    if castling["black"]["king"] and castling["black"]["Rook-R"] and board[row][7] == "R" and sum(len(i) for i in board[row][col+1:7]) == 0:
+                        posible_moves.append((row, col + 2, "castling"))
         
         
         
@@ -339,18 +357,56 @@ class piece_moves:
         return posible_checks
                 
 
-    def check_mate(self, board, my_color, castling): #not working yet
+    def check_mate(self, board, my_color, castling, en_passant): #not working yet
         mate = [False, False]
         posible_moves = []
         check = self.check(board, my_color)
         color = ["white", "black"]
-        
         
         for color_turn in range(2):
             if check[color_turn][0]:
                 for r in range(8):
                     for c in range(8):
                         if (color_turn == 0 and board[r][c].islower()) or (color_turn == 1 and board[r][c].isupper()):
+                            if board[r][c].lower() == "p":
+                                posible_moves.extend(self.pawn_moves(board, r, c, color[color_turn], my_color, en_passant)) 
+
+                            elif board[r][c].lower() == "n":
+                                posible_moves.extend(self.knight_moves(board, r, c, color[color_turn], my_color))
+
+                            elif board[r][c].lower() == "b":
+                                posible_moves.extend(self.bishop_moves(board, r, c, color[color_turn], my_color))
+
+                            elif board[r][c].lower() == "r":
+                                posible_moves.extend(self.rook_moves(board, r, c, color[color_turn], my_color))
+
+                            elif board[r][c].lower() == "q":
+                                posible_moves.extend(self.queen_moves(board, r, c, color[color_turn], my_color))
+
+                            elif board[r][c].lower() == "k":
+                                posible_moves.extend(self.king_moves(board, r, c, color[color_turn], castling, my_color))
+
+
+                moves = sum(len(i) for i in posible_moves) / 2
+                if moves == 0:
+                    mate[color_turn] = True
+                posible_moves = []
+                
+        return mate
+        
+        
+    def is_stalemate(self, board, my_color, castling, turn):
+        stalemate = [False, False]
+        check = self.check(board, my_color)
+        color = ["white", "black"]
+        turn = "white" if turn == "black" else "black"
+        
+        for color_turn in range(2):
+            if check[color_turn][0] == False:
+                posible_moves = []
+                for r in range(8):
+                    for c in range(8):
+                        if (color_turn == 0 and board[r][c].islower() and turn == "white") or (color_turn == 1 and board[r][c].isupper()and turn == "black"):
                             if board[r][c].lower() == "p":
                                 posible_moves.extend(self.pawn_moves(board, r, c, color[color_turn], my_color)) 
 
@@ -362,7 +418,6 @@ class piece_moves:
 
                             elif board[r][c].lower() == "r":
                                 posible_moves.extend(self.rook_moves(board, r, c, color[color_turn], my_color))
-                                print("wierza ma ruchy: ", self.rook_moves(board, r, c, color[color_turn], my_color), color[color_turn])
 
                             elif board[r][c].lower() == "q":
                                 posible_moves.extend(self.queen_moves(board, r, c, color[color_turn], my_color))
@@ -370,17 +425,12 @@ class piece_moves:
                             elif board[r][c].lower() == "k":
                                 posible_moves.extend(self.king_moves(board, r, c, color[color_turn], castling, my_color))
 
-                moves = sum(len(i) for i in posible_moves) / 2
-                print("there is ", moves, " posible moves")
-                if moves == 0:
-                    mate[color_turn] = True
-                posible_moves = []
-                
-        print(mate, " | ", posible_moves)
-        return mate
-        
-        
-    def is_stalemate():
-        pass
+
+                moves = sum(len(i) for i in posible_moves)
+                if moves == 0 and (color_turn == 0 and turn == "white") or (color_turn == 1 and turn == "black"):
+                    stalemate[color_turn] = True
+
+
+        return stalemate
     
 #made by: rokrerum
