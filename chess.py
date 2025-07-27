@@ -40,14 +40,12 @@ class piece_moves:
                     self.board_after_move = [list(row) for row in board]
                     self.board_after_move[row - (where_to_move * 2)][col] = board[row][col]
                     self.board_after_move[row][col] = ""    
-                    if len(board[row - (where_to_move * 2)][col]) == 0  and (row == 6 and my_color == turn) or (row == 1 and my_color != turn) and self.if_not_checke_after(self.board_after_move, turn, my_color):
+                    if len(board[row - (where_to_move * 2)][col]) == 0  and ((row == 6 and my_color == turn) or (row == 1 and my_color != turn)) and self.if_not_checke_after(self.board_after_move, turn, my_color):
                         
                         if (0 <= col + 1 <= 7 and board[row - (where_to_move * 2)][col + 1].lower() == "p" and board[row - (where_to_move * 2)][col + 1] != board[row][col]) or \
-                            (0 <= col - 1 <= 7 and board[row - (where_to_move * 2)][col - 1].lower() == "p"and board[row - (where_to_move * 2)][col - 1] != board[row][col]): 
-                            posible_moves.append([row - (where_to_move * 2), col, ("el pas")])
-                            print("enpasso")
+                            (0 <= col - 1 <= 7 and board[row - (where_to_move * 2)][col - 1].lower() == "p"and board[row - (where_to_move * 2)][col - 1] != board[row][col]):   #check if en passant will be posible next move
+                            posible_moves.append([row - (where_to_move * 2), col, ("en_passant")]) 
                         else:
-                            print("enpasso nie")
                             posible_moves.append([row - (where_to_move * 2), col])
                                     
             if col + 1 < 8:
@@ -64,11 +62,14 @@ class piece_moves:
                 if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col - 1]) == False and self.if_not_checke_after(self.board_after_move, turn, my_color):
                     posible_moves.append([row - where_to_move, col - 1])
                     
-            #checks if en passant is posible       
-            if en_passant[0] and row == en_passant[1] and (((col + 1) == en_passant[2] and board[en_passant[1][col + 1]] == "") or ((col - 1) == en_passant[2] and board[en_passant[1][col + 1]] == "")): #not works yet
-                print("en_passant works")
-                posible_moves.append([row - where_to_move, col - 1])
+            #checks if en passant is posible
+            if en_passant[0] and row == en_passant[1] and ((col + 1) == en_passant[2] and board[en_passant[1] - where_to_move][col + 1] == ""): 
+                posible_moves.append([row - where_to_move, col + 1, "en_passant_move"])
             
+            elif en_passant[0] and row == en_passant[1] and ((col - 1) == en_passant[2] and board[en_passant[1] - where_to_move][col - 1] == ""):
+                posible_moves.append([row - where_to_move, col - 1, "en_passant_move"])
+                
+                
         else:
             posible_moves = []
                 
@@ -395,7 +396,7 @@ class piece_moves:
         return mate
         
         
-    def is_stalemate(self, board, my_color, castling, turn):
+    def is_stalemate(self, board, my_color, castling, turn, en_passant):
         stalemate = [False, False]
         check = self.check(board, my_color)
         color = ["white", "black"]
@@ -408,7 +409,7 @@ class piece_moves:
                     for c in range(8):
                         if (color_turn == 0 and board[r][c].islower() and turn == "white") or (color_turn == 1 and board[r][c].isupper()and turn == "black"):
                             if board[r][c].lower() == "p":
-                                posible_moves.extend(self.pawn_moves(board, r, c, color[color_turn], my_color)) 
+                                posible_moves.extend(self.pawn_moves(board, r, c, color[color_turn], my_color, en_passant)) 
 
                             elif board[r][c].lower() == "n":
                                 posible_moves.extend(self.knight_moves(board, r, c, color[color_turn], my_color))
@@ -427,9 +428,8 @@ class piece_moves:
 
 
                 moves = sum(len(i) for i in posible_moves)
-                if moves == 0 and (color_turn == 0 and turn == "white") or (color_turn == 1 and turn == "black"):
+                if moves == 0 and ((color_turn == 0 and turn == "white") or (color_turn == 1 and turn == "black")):
                     stalemate[color_turn] = True
-
 
         return stalemate
     
