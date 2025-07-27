@@ -20,7 +20,7 @@ class Game:
             ["", "", "p", "", "", "", "P", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "p", "", "q", "", "p", "p"],
-            ["", "", "", "", "", "", "", ""], 
+            ["", "P", "", "", "", "", "", ""], 
             ["", "", "", "", "K", "", "", ""] #black
         ]
         
@@ -403,8 +403,12 @@ if __name__ == "__main__":
                                                 game.board[row][new_col - 1] = game.board[row][0]
                                                 game.board[row][7] = ""
                                                 
-                                        elif game.board[row][col].lower() == "p": 
-                                            game.en_passant = [True, row, col]
+                                        elif game.board[row][col].lower() == "p" and i[2] == "en_passant": 
+                                            game.en_passant = [True, new_row, new_col]
+                                            
+                                        elif game.board[row][col].lower() == "p" and i[2] == "en_passant_move":
+                                            game.en_passant = [False]
+                                            game.board[row][new_col] = "" 
                                     
                                     else:
                                         game.en_passant = [False]
@@ -463,7 +467,7 @@ if __name__ == "__main__":
                                                         menu.menu_gui()
                                                               
                                         
-                                    stalemate =  chess_moves.is_stalemate(game.board, my_color, game.castling, turn)
+                                    stalemate =  chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
                                     if stalemate[0] or stalemate[1]:
                                         print("stalemate")
                                         game.game_ended("stalemate", turn)
