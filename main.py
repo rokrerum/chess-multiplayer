@@ -16,12 +16,12 @@ class Game:
         self.board = [
             ["r", "n", "b", "q", "k", "b", "n", "r"], #white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
-            ["", "", "", "", "q", "", "", ""],
-            ["", "", "p", "", "", "", "P", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "p", "", "q", "", "p", "p"],
-            ["", "P", "", "", "", "", "", ""], 
-            ["", "", "", "", "K", "", "", ""] #black
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["P", "P", "P", "P", "P", "P", "P", "P"], 
+            ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
         ]
         
         self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
@@ -33,14 +33,28 @@ class Game:
         self.halfmove_clock = 0
         self.fullmove_number = 1
         self.check = False
-        self.checkmate = False
-        self.draw = False
-        self.threefold_repetition = False
-        self.fifty_move_rule = False
-        self.insufficient_material = False
-        self.fivefold_repetition = False
+        #self.threefold_repetition = False
+        #self.fifty_move_rule = False
+        #self.insufficient_material = False
+        #self.fivefold_repetition = False
     
-
+    def reset_to_defoult(self):
+        self.board = [
+            ["r", "n", "b", "q", "k", "b", "n", "r"], #white
+            ["p", "p", "p", "p", "p", "p", "p", "p"],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["P", "P", "P", "P", "P", "P", "P", "P"], 
+            ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
+        ]
+        self.turn = "white"
+        self.move_history = []
+        self.en_passant = [False]
+        self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True}, "black": {"king": True, "Rook-L": True, "Rook-R": True}}
+        self.check = False
+    
 
 class Square:
     def __init__(self, position, color):
@@ -78,6 +92,7 @@ class Menu_gui:
 
     def menu_gui(self):
         global user_name
+        self.menu.clear()
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
         
         frame = self.menu.add.frame_h(338, 58)
@@ -278,223 +293,233 @@ class game_gui(Game,  Menu_gui):
         
         
 if __name__ == "__main__":
-        #game runing###########################
+    #game runing###########################
+    chess_moves = chess.piece_moves()
+    game = game_gui()
+    menu = Menu_gui()
+    
     global selected_piece, turn, my_color
     turn = "white"
     my_color = "black"
-    running = True
+    app_running, game_running = True, True
     dragging = False
     selected_piece = None
     posible_moves = []
     
-    menu = Menu_gui()
     menu.menu_gui()
 
-    game = game_gui()
-    game.draw_board()
-    
-    chess_moves = chess.piece_moves()
-    
-    menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color #change color randomly if option random is selected
-    if menu.selected_color == "white": #not
-        my_color = "white"
-        for i in range(8): #this is for reversing the board if player selected white
-            game.board[i].reverse()
-        game.board.reverse()
-    else:
-        my_color = "black"
-        
-    game.draw_pieces()
-    
-
     print(menu.selected_color)
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            
-            if two_players == True and turn == my_color or two_players == False:
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        mouse_x, mouse_y = event.pos
-                        col = (mouse_x - border_size) // square_size
-                        row = (mouse_y - border_size) // square_size
-
-                        # this check if you clikced on a piece
-                        if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
-                            dragging = True
-                            offset_x = mouse_x - (col * square_size + square_size // 2)
-
-                            selected_piece = str(game.board[row][col][0])
-                            offset_x = mouse_x - (col * square_size + square_size // 2)
-                            offset_y = mouse_y - (row * square_size + square_size // 2)
-                            
-                        
-                            if selected_piece.upper() == "P": 
-                                posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color, game.en_passant)
-
-                            elif selected_piece.upper() == "R":
-                                posible_moves = chess_moves.rook_moves(game.board, row, col, turn, my_color)
-
-                            elif selected_piece.upper() == "N":
-                                posible_moves = chess_moves.knight_moves(game.board, row, col, turn, my_color)
-
-                            elif selected_piece.upper() == "B":
-                                posible_moves = chess_moves.bishop_moves(game.board, row, col, turn, my_color)
-
-                            elif selected_piece.upper() == "K":
-                                posible_moves = chess_moves.king_moves(game.board, row, col, turn, game.castling, my_color)
-
-                            elif selected_piece.upper() == "Q":
-                                posible_moves = chess_moves.queen_moves(game.board, row, col, turn, my_color)
-
-                            game.draw_board()
-                            game.draw_pieces()
-
-                        else:
-                            dragging = False
-                            selected_piece = None
-
-
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1 and dragging:
-                        mouse_x, mouse_y = event.pos
-                        new_col = (mouse_x - border_size) // square_size
-                        new_row = (mouse_y - border_size) // square_size
-                        piece_pos = (new_row, new_col)
-                        dragging = False
-
-                        if len(posible_moves) != 0:
-                            for i in posible_moves:
-                                if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
-                                
-                                    if game.board[row][col] in ("K", "k", "R", "r"): # if you move a king or a rook u cant use it for castling
-                                        if game.board[row][col] in ("K", "k"):
-                                            if game.board[row][col] == "k":
-                                                for state in game.castling["white"]:
-                                                    game.castling["white"][state] = False
-                                            else:
-                                                for state in game.castling["black"]:
-                                                    game.castling["black"][state] = False
-                                                
-                                            
-                                        elif game.board[row][col] in ("R", "r"):
-                                            if game.board[row][col] == "r":
-                                                if col == 0 and row in (0, 7):
-                                                    game.castling["white"]["Rook-L"] = False
-                                                elif col == 7 and row in (0, 7):
-                                                    game.castling["white"]["Rook-R"] = False
-                                                
-                                            else:
-                                                if col == 0 and row in (0, 7):
-                                                    game.castling["black"]["Rook-L"] = False
-                                                elif col == 7 and row in (0, 7):
-                                                    game.castling["black"]["Rook-R"] = False
-                                                    
-                                                    
-                                    print(game.castling)
-                                    if len(i) == 3: #checking if the move is castling and if it is, it will move the rook
-                                        if game.board[row][col].lower() == "k":
-                                            if new_col < col:
-                                                game.board[row][new_col + 1] = game.board[row][0]
-                                                game.board[row][0] = ""
-                                            else:
-                                                game.board[row][new_col - 1] = game.board[row][0]
-                                                game.board[row][7] = ""
-                                                
-                                        elif game.board[row][col].lower() == "p" and i[2] == "en_passant": 
-                                            game.en_passant = [True, new_row, new_col]
-                                            
-                                        elif game.board[row][col].lower() == "p" and i[2] == "en_passant_move":
-                                            game.en_passant = [False]
-                                            game.board[row][new_col] = "" 
-                                    
-                                    else:
-                                        game.en_passant = [False]
-                                        
-                                            
-                                    if game.board[row][col] in ("p", "P"): # if pawn moves to the last row, it will be promoted
-                                        if new_row in (0, 7): #promotion of the client player
-                                            if two_players == False: # if it is silgle player, the player can choose what piece to promote to
-
-                                                game.show_promotion_menu()
-                                                waiting = True
-                                                while waiting:
-                                                    for event in pygame.event.get():
-                                                        if event.type == pygame.MOUSEBUTTONDOWN:
-                                                            mouse_x, mouse_y = event.pos
-                                                            x, y = square_size, square_size
-                                                            
-                                                            # this checks if player clicked on the icons of pieces u can promote your pown into
-                                                            if x * 2.3 <= mouse_x <= (x * 2.3) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
-                                                                game.board[row][col] = "q" if turn == "white" else "Q"
-                                                                waiting = False
-                                                                
-                                                            elif x * 3.4 <= mouse_x <= (x * 3.4) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
-                                                                game.board[row][col] = "r" if turn == "white" else "R"
-                                                                waiting = False
-                                                                
-                                                            elif x * 4.6 <= mouse_x <= (x * 4.6) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
-                                                                game.board[row][col] = "b" if turn == "white" else "B"
-                                                                waiting = False
-                                                                
-                                                            elif x * 5.7 <= mouse_x <= (x * 5.7) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
-                                                                game.board[row][col] = "n" if turn == "white" else "N"
-                                                                waiting = False
-                                            
-                                            else: # if it is multiplayer, the AI or another player will choose what piece to promote to
-                                                pass
-                                            
-                                    game.board[new_row][new_col] = game.board[row][col]
-                                    game.board[row][col] = ""
-
-
-                                    mate =  chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant) #this shows end window after one of the players is mated
-                                    if mate[0] or mate[1]:
-                                        print("mate")
-                                        game.game_ended("mate", turn)
-                                        waiting = True
-                                        while waiting:
-                                            for event in pygame.event.get():
-                                                if event.type == pygame.MOUSEBUTTONDOWN:
-                                                    mouse_x, mouse_y = event.pos
-                                                    x, y = square_size, square_size
-                                                    
-                                                    if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
-                                                        waiting = False
-                                                        #need to add better returnning to menu like reshaping window
-                                                        menu.menu_gui()
-                                                              
-                                        
-                                    stalemate =  chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
-                                    if stalemate[0] or stalemate[1]:
-                                        print("stalemate")
-                                        game.game_ended("stalemate", turn)
-                                        waiting = True
-                                        while waiting:
-                                            for event in pygame.event.get():
-                                                if event.type == pygame.MOUSEBUTTONDOWN:
-                                                    mouse_x, mouse_y = event.pos
-                                                    x, y = square_size, square_size
-                                                    
-                                                    if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
-                                                        waiting = False
-                                                        #need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
-                                                        menu.menu_gui()
-                                                              
-                                        
-                                    posible_moves = []
-                                    game.draw_board()
-                                    game.draw_pieces()
-                                    
-                                    turn = "white" if turn == "black" else "black"
-                                    
-                                    
-            elif two_players == True and turn != my_color: # 2 players
-                if True: # AI turn (against AI)
-                    pass
-                elif True: # another player turn (against another player online)
-                    pass    
+    while app_running:
+        game_running = True
+        menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color #change color randomly if option random is selected
+        game.reset_to_defoult()
+        
+        if menu.selected_color == "white": #not
+            my_color = "white"
+            for i in range(8): #this is for reversing the board if player selected white
+                game.board[i].reverse()
+            game.board.reverse()
+        else:
+            my_color = "black"
+        
+        game.draw_board()
+        game.draw_pieces()
+    
+        while game_running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    app_running = False
+                    game_running = False
                 
+                if two_players == True and turn == my_color or two_players == False:
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1:
+                            mouse_x, mouse_y = event.pos
+                            col = (mouse_x - border_size) // square_size
+                            row = (mouse_y - border_size) // square_size
+
+                            # this check if you clikced on a piece
+                            if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
+                                dragging = True
+                                offset_x = mouse_x - (col * square_size + square_size // 2)
+
+                                selected_piece = str(game.board[row][col][0])
+                                offset_x = mouse_x - (col * square_size + square_size // 2)
+                                offset_y = mouse_y - (row * square_size + square_size // 2)
+                                
+                            
+                                if selected_piece.upper() == "P": 
+                                    posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color, game.en_passant)
+
+                                elif selected_piece.upper() == "R":
+                                    posible_moves = chess_moves.rook_moves(game.board, row, col, turn, my_color)
+
+                                elif selected_piece.upper() == "N":
+                                    posible_moves = chess_moves.knight_moves(game.board, row, col, turn, my_color)
+
+                                elif selected_piece.upper() == "B":
+                                    posible_moves = chess_moves.bishop_moves(game.board, row, col, turn, my_color)
+
+                                elif selected_piece.upper() == "K":
+                                    posible_moves = chess_moves.king_moves(game.board, row, col, turn, game.castling, my_color)
+
+                                elif selected_piece.upper() == "Q":
+                                    posible_moves = chess_moves.queen_moves(game.board, row, col, turn, my_color)
+
+                                game.draw_board()
+                                game.draw_pieces()
+
+                            else:
+                                dragging = False
+                                selected_piece = None
+
+
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        if event.button == 1 and dragging:
+                            mouse_x, mouse_y = event.pos
+                            new_col = (mouse_x - border_size) // square_size
+                            new_row = (mouse_y - border_size) // square_size
+                            piece_pos = (new_row, new_col)
+                            dragging = False
+
+                            if len(posible_moves) != 0:
+                                for i in posible_moves:
+                                    if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
+                                    
+                                        if game.board[row][col] in ("K", "k", "R", "r"): # if you move a king or a rook u cant use it for castling
+                                            if game.board[row][col] in ("K", "k"):
+                                                if game.board[row][col] == "k":
+                                                    for state in game.castling["white"]:
+                                                        game.castling["white"][state] = False
+                                                else:
+                                                    for state in game.castling["black"]:
+                                                        game.castling["black"][state] = False
+                                                    
+                                                
+                                            elif game.board[row][col] in ("R", "r"): #this will be activated if rook is moved and castling will not be posible with it
+                                                if game.board[row][col] == "r":
+                                                    if col == 0 and row in (0, 7):
+                                                        game.castling["white"]["Rook-L"] = False
+                                                    elif col == 7 and row in (0, 7):
+                                                        game.castling["white"]["Rook-R"] = False
+                                                    
+                                                else:
+                                                    if col == 0 and row in (0, 7):
+                                                        game.castling["black"]["Rook-L"] = False
+                                                    elif col == 7 and row in (0, 7):
+                                                        game.castling["black"]["Rook-R"] = False
+                                                        
+                                                        
+                                        print(game.castling)
+                                        if len(i) == 3: #checking if the move is castling and if it is, it will move the rook
+                                            if game.board[row][col].lower() == "k":
+                                                if new_col < col:
+                                                    game.board[row][new_col + 1] = game.board[row][0]
+                                                    game.board[row][0] = ""
+                                                else:
+                                                    game.board[row][new_col - 1] = game.board[row][0]
+                                                    game.board[row][7] = ""
+                                                    
+                                            elif game.board[row][col].lower() == "p" and i[2] == "en_passant": 
+                                                game.en_passant = [True, new_row, new_col]
+                                                
+                                            elif game.board[row][col].lower() == "p" and i[2] == "en_passant_move":
+                                                game.en_passant = [False]
+                                                game.board[row][new_col] = "" 
+                                        
+                                        else:
+                                            game.en_passant = [False]
+                                            
+                                                
+                                        if game.board[row][col] in ("p", "P"): # if pawn moves to the last row, it will be promoted
+                                            if new_row in (0, 7): #promotion of the client player
+                                                if two_players == False: # if it is silgle player, the player can choose what piece to promote to
+
+                                                    game.show_promotion_menu()
+                                                    waiting = True
+                                                    while waiting:
+                                                        for event in pygame.event.get():
+                                                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                                                mouse_x, mouse_y = event.pos
+                                                                x, y = square_size, square_size
+                                                                
+                                                                # this checks if player clicked on the icons of pieces u can promote your pown into
+                                                                if x * 2.3 <= mouse_x <= (x * 2.3) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
+                                                                    game.board[row][col] = "q" if turn == "white" else "Q"
+                                                                    waiting = False
+                                                                    
+                                                                elif x * 3.4 <= mouse_x <= (x * 3.4) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
+                                                                    game.board[row][col] = "r" if turn == "white" else "R"
+                                                                    waiting = False
+                                                                    
+                                                                elif x * 4.6 <= mouse_x <= (x * 4.6) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
+                                                                    game.board[row][col] = "b" if turn == "white" else "B"
+                                                                    waiting = False
+                                                                    
+                                                                elif x * 5.7 <= mouse_x <= (x * 5.7) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
+                                                                    game.board[row][col] = "n" if turn == "white" else "N"
+                                                                    waiting = False
+                                                
+                                                else: # if it is multiplayer, the AI or another player will choose what piece to promote to
+                                                    pass
+                                                
+                                        game.board[new_row][new_col] = game.board[row][col]
+                                        game.board[row][col] = ""
+
+
+                                        mate =  chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant) #this shows end window after one of the players is mated
+                                        if mate[0] or mate[1]:
+                                            posible_moves = []
+                                            game.draw_board()
+                                            game.draw_pieces()
+                                            print("mate")
+                                            game.game_ended("mate", turn)
+                                            waiting = True
+                                            while waiting:
+                                                for event in pygame.event.get():
+                                                    if event.type == pygame.MOUSEBUTTONDOWN:
+                                                        mouse_x, mouse_y = event.pos
+                                                        x, y = square_size, square_size
+                                                        
+                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
+                                                            waiting = False
+                                                            #need to add better returnning to menu like reshaping window
+                                                            menu.menu_gui()
+                                                            game_running = False
+                                                                
+                                            
+                                        stalemate =  chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
+                                        if stalemate[0] or stalemate[1]:
+                                            posible_moves = []
+                                            game.draw_board()
+                                            game.draw_pieces()
+                                            print("stalemate")
+                                            game.game_ended("stalemate", turn)
+                                            waiting = True
+                                            while waiting:
+                                                for event in pygame.event.get():
+                                                    if event.type == pygame.MOUSEBUTTONDOWN:
+                                                        mouse_x, mouse_y = event.pos
+                                                        x, y = square_size, square_size
+                                                        
+                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
+                                                            waiting = False
+                                                            #need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
+                                                            menu.menu_gui()
+                                                            game_running = False                                                                
+                                            
+                                        posible_moves = []
+                                        game.draw_board()
+                                        game.draw_pieces()
+                                        
+                                        turn = "white" if turn == "black" else "black"
+                                        
+                                        
+                elif two_players == True and turn != my_color: # 2 players
+                    if True: # AI turn (against AI)
+                        pass
+                    elif True: # another player turn (against another player online)
+                        pass    
+                    
 #made by: rokrerum
