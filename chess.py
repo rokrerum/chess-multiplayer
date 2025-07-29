@@ -16,12 +16,13 @@ class piece_moves:
     
     
     def if_not_checke_after(self, board, turn, my_color, move):
-        if len(move) == 3:    
+        if len(move) == 3: #this if is for pawns becouse they have diffrent needs for information on moves
             row, col, where_to_move = move[0], move[1], move[2]                                         
             self.board_after_move = [list(row) for row in board]
             self.board_after_move[row - where_to_move][col] = board[row][col]
             self.board_after_move[row][col] = ""
-        else:
+            
+        else: #this is for rest of pieces
             row, col, row_move, col_move = move[0], move[1], move[2], move[3]
             self.board_after_move = [list(row) for row in board]
             self.board_after_move[row_move][col_move] = board[row][col]
