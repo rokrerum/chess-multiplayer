@@ -7,8 +7,8 @@ class AI:
         
     
     def ai(self, board, turn, my_color, en_passant, castling):
-
-        return self.min_max(4, my_color, turn)
+        move = self.min_max(4, board, my_color, turn, en_passant, castling)
+        return move
 
 
     def min_max(self, depht, board, my_color, turn, en_passant, castling): #not worikin yet
