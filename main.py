@@ -295,6 +295,7 @@ class game_gui(Game,  Menu_gui):
 if __name__ == "__main__":
     #game runing###########################
     chess_moves = chess.piece_moves()
+    chess_bot = chess_ai.AI()
     game = game_gui()
     menu = Menu_gui()
     
@@ -518,7 +519,10 @@ if __name__ == "__main__":
                                         
                 elif two_players == True and turn != my_color: # 2 players
                     if True: # AI turn (against AI)
-                        pass
+                        ia_move = chess_bot.ai(game.board, turn, my_color, game.en_passant, game.castling)
+                        print(ia_move)
+                        turn = "white" if turn == "black" else "black"
+                        
                     elif True: # another player turn (against another player online)
                         pass    
                     
