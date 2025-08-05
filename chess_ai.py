@@ -7,48 +7,77 @@ class AI:
         
     
     def ai(self, board, turn, my_color, en_passant, castling):
-        move = self.min_max(4, board, my_color, turn, en_passant, castling)
+        move = self.min_max(2, board, my_color, turn, en_passant, castling, None)
+        print("ruch ai to:", move)
         return move
 
 
-    def min_max(self, depht, board, my_color, turn, en_passant, castling): #not worikin yet
-        if depht == 0:
-            return True
+    def min_max(self, depht, board, my_color, turn, en_passant, castling, move): #not worikin yet
+        if depht == 0 or self.game_ended():
+            return move
+
+        if move != None:
+            print("ruch to " ,move)
         
-        if my_color != turn: #posible bots move
-            turn = "white" if turn == "black" else "white"
+        if my_color != turn: #posible ai move
+            max_val = -999999999
             pieces = self.all_pieces(board)
             moves = self.all_moves(board, pieces, turn, my_color, en_passant, castling)
-            self.min_max(depht - 1, board, my_color, turn, en_passant, castling)
-            max(1,2)
-            
+            turn = "white" if turn == "black" else "white"
+            for move_set in range(len(moves)):
+                for move in  moves[move_set][1]:
+                    board = self.board_after_move(board, (moves[move_set][0], move))
+                    value = self.min_max(depht - 1, board, my_color, turn, en_passant, castling, move)
+                    best_move = value
+                    value = self.evaluating(board, self.all_pieces(board))
+                    max_val = max(value, max_val)
+            return max_val
+        
         else: #posible player move
-            pass    
+            min_val = 999999999
+            pieces = self.all_pieces(board)
+            moves = self.all_moves(board, pieces, turn, my_color, en_passant, castling)
+            turn = "white" if turn == "black" else "white"
+            for move_set in range(len(moves)):
+                for move in  moves[move_set][1]:
+                    board = self.board_after_move(board, (moves[move_set][0], move))
+                    value = self.min_max(depht - 1, board, my_color, turn, en_passant, castling, move)
+
+                    best_move = value
+                    value = self.evaluating(board, self.all_pieces(board))
+                    min_val = min(value, min_val)  
+            return best_move
+
+        
 
     
     def all_moves(self, board, pieces, turn, my_color, en_passant, castling):
+        chess_moves = chess.piece_moves()
+        
         moves = []
-        for color in pieces:
+        for color in range(2):
             if (color == 0 and turn == "white") or (color == 1 and turn == "black"):
-                for r, c in color:
+                for r, c in pieces[color]:
                     piece = board[r][c]
+                    print(board[r][c])
                     if piece.lower() == "p":
-                        moves.append(chess.piece_moves.pawn_moves(board, r, c, turn, my_color, en_passant))
+                        moves.append(((r,c), chess_moves.pawn_moves(board, r, c, turn, my_color, en_passant)))
                         
                     elif piece.lower() == "n":
-                        moves.append(chess.piece_moves.knight_moves(board, r, c, turn, my_color))
+                        moves.append(((r,c), chess_moves.knight_moves(board, r, c, turn, my_color)))
                     
                     elif piece.lower() == "b":
-                        moves.append(chess.piece_moves.bishop_moves(board, r, c, turn, my_color))
+                        moves.append(((r,c), chess_moves.bishop_moves(board, r, c, turn, my_color)))
                     
                     elif piece.lower() == "r":
-                        moves.append(chess.piece_moves.rook_moves(board, r, c, turn, my_color))
+                        moves.append(((r,c), chess_moves.rook_moves(board, r, c, turn, my_color)))
                     
                     elif piece.lower() == "q":
-                        moves.append(chess.piece_moves.king_moves(board, r, c, turn, castling, my_color))
+                        moves.append(((r,c), chess_moves.king_moves(board, r, c, turn, castling, my_color)))
                     
                     elif piece.lower() == "k":
-                        moves.append(chess.piece_moves.queen_moves(board, r, c, turn, my_color))
+                        moves.append(((r,c), chess_moves.queen_moves(board, r, c, turn, my_color)))
+        return moves
                     
     
     def  all_pieces(self, board):
@@ -67,8 +96,8 @@ class AI:
     def evaluating(self, board, pieces):
         white, black = 0, 0
         points = 0
-        for color in pieces:
-            for r, c in color:
+        for color in range(2):
+            for r, c in pieces[0]:
                 if board[r][c].lower() == "p":
                     points = 1
                     
@@ -93,3 +122,19 @@ class AI:
                 black += points
             
         return white - black
+    
+    
+    def game_ended(self):
+        return False
+        pass
+    
+    
+    def board_after_move(self, board, move):
+        row, col, row_move, col_move = move[0][0], move[0][1], move[1][0], move[1][1]
+        board_after_move = [list(row) for row in board]
+        board_after_move[row_move][col_move] = board[row][col]
+        board_after_move[row][col] = ""
+        
+        return board_after_move
+    
+#made by: rokrerum
