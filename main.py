@@ -16,10 +16,10 @@ class Game:
         self.board = [
             ["r", "n", "b", "q", "k", "b", "n", "r"], #white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
+            ["", "", "", "P", "", "Q", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "p", "", "q", "", ""],
             ["P", "P", "P", "P", "P", "P", "P", "P"], 
             ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
         ]
@@ -42,10 +42,10 @@ class Game:
         self.board = [
             ["r", "n", "b", "q", "k", "b", "n", "r"], #white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
+            ["", "", "", "P", "", "Q", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
+            ["", "", "q", "p", "", "q", "q", ""],
             ["P", "P", "P", "P", "P", "P", "P", "P"], 
             ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
         ]
@@ -412,7 +412,6 @@ if __name__ == "__main__":
                                                         game.castling["black"]["Rook-R"] = False
                                                         
                                                         
-                                        print(game.castling)
                                         if len(i) == 3: #checking if the move is castling and if it is, it will move the rook
                                             if game.board[row][col].lower() == "k":
                                                 if new_col < col:
@@ -520,8 +519,15 @@ if __name__ == "__main__":
                 elif two_players == True and turn != my_color: # 2 players
                     if True: # AI turn (against AI)
                         ia_move = chess_bot.ai(game.board, turn, my_color, game.en_passant, game.castling)
-                        print(ia_move)
                         turn = "white" if turn == "black" else "black"
+                        
+                        print("działa")
+                        row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], ia_move[1][1][1]
+                        game.board[new_row][new_col] = game.board[row][col]
+                        game.board[row][col] = ""
+                        
+                        game.draw_board()
+                        game.draw_pieces()
                         
                     elif True: # another player turn (against another player online)
                         pass    
