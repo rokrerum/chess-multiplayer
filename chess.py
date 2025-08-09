@@ -15,18 +15,11 @@ class piece_moves:
         return False
     
     
-    def if_not_checke_after(self, board, turn, my_color, move):
-        if len(move) == 3: #this if is for pawns becouse they have diffrent needs for information on moves
-            row, col, where_to_move = move[0], move[1], move[2]                                         
-            self.board_after_move = [list(row) for row in board]
-            self.board_after_move[row - where_to_move][col] = board[row][col]
-            self.board_after_move[row][col] = ""
-            
-        else: #this is for rest of pieces
-            row, col, row_move, col_move = move[0], move[1], move[2], move[3]
-            self.board_after_move = [list(row) for row in board]
-            self.board_after_move[row_move][col_move] = board[row][col]
-            self.board_after_move[row][col] = ""
+    def if_not_checke_after(self, board, turn, my_color, move): #this thing is creating same board after posible move to check if there is check
+        row, col, row_move, col_move = move[0], move[1], move[2], move[3] 
+        self.board_after_move = [list(row) for row in board]
+        self.board_after_move[row_move][col_move] = board[row][col]
+        self.board_after_move[row][col] = ""
         
         if self.check(self.board_after_move, my_color)[0][0] and turn == "white": #if there is check
             return False
@@ -57,41 +50,40 @@ class piece_moves:
     def pawn_moves(self, board, row, col, turn, my_color, en_passant):
         posible_moves = []
         where_to_move = 1 if my_color == turn else -1
-        print(en_passant)
         
         if self.turn_checker(turn, board[row][col]): #check if the piece is the same color as the turn
-            if len(board[row - where_to_move][col]) == 0 and self.if_not_checke_after(board, turn, my_color, (row, col, where_to_move)):
+            if len(board[row - where_to_move][col]) == 0 and self.if_not_checke_after(board, turn, my_color, (row, col, row - where_to_move, col)):
                 posible_moves.append([row - where_to_move, col])
                 
                 if 0 <= row - (where_to_move * 2) <= 7:
-                    if len(board[row - (where_to_move * 2)][col]) == 0  and ((row == 6 and my_color == turn) or (row == 1 and my_color != turn)) and self.if_not_checke_after(board, turn, my_color, (row, col, where_to_move * 2)):
+                    if len(board[row - (where_to_move * 2)][col]) == 0  and ((row == 6 and my_color == turn) or (row == 1 and my_color != turn)) and self.if_not_checke_after(board, turn, my_color, (row, col, row - (where_to_move * 2), col)):
                         
                         if (0 <= col + 1 <= 7 and board[row - (where_to_move * 2)][col + 1].lower() == "p" and board[row - (where_to_move * 2)][col + 1] != board[row][col]) or \
                             (0 <= col - 1 <= 7 and board[row - (where_to_move * 2)][col - 1].lower() == "p"and board[row - (where_to_move * 2)][col - 1] != board[row][col]):   #check if en passant will be posible next move
                             posible_moves.append([row - (where_to_move * 2), col, ("en_passant")]) 
                         else:
-                            posible_moves.append([row - (where_to_move * 2), col])
-                                    
+                            posible_moves.append([row - (where_to_move * 2), col])   
+                              
+            #normal powns ataks                
             if col + 1 < 8:
-                if len(board[row - where_to_move][col + 1]) > 0 and self.if_not_checke_after(board, turn, my_color, (row, col + 1, where_to_move)) and self.turn_checker(turn, board[row - where_to_move][col + 1]) == False: #check if atacked piece is different color
-                    posible_moves.append([row - where_to_move, col + 1])
-                    
+                if len(board[row - where_to_move][col + 1]) > 0 and self.if_not_checke_after(board, turn, my_color, (row, col, row - where_to_move, col + 1)) and self.turn_checker(turn, board[row - where_to_move][col + 1]) == False: #check if atacked piece is different color
+                    posible_moves.append([row - where_to_move, col + 1])    
+                       
             if col - 1 >= 0:
-                if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col - 1]) == False and self.if_not_checke_after(board, turn, my_color, (row, col - 1, where_to_move)):
+                if col - 1 >= 0 and len(board[row - where_to_move][col - 1]) > 0 and self.turn_checker(turn, board[row - where_to_move][col - 1]) == False and self.if_not_checke_after(board, turn, my_color, (row, col, row - where_to_move, col - 1)):
                     posible_moves.append([row - where_to_move, col - 1])
                     
             #checks if en passant is posible
-            if en_passant[0] and row == en_passant[1] and ((col + 1) == en_passant[2] and board[en_passant[1] - where_to_move][col + 1] == "") and self.if_not_checke_after(board, turn, my_color, (row, col, where_to_move)): 
+            if en_passant[0] and row == en_passant[1] and ((col + 1) == en_passant[2] and board[en_passant[1] - where_to_move][col + 1] == "") and self.if_not_checke_after(board, turn, my_color, (row, col, en_passant[1] - where_to_move, col + 1)): 
                 posible_moves.append([row - where_to_move, col + 1, "en_passant_move"])
             
-            elif en_passant[0] and row == en_passant[1] and ((col - 1) == en_passant[2] and board[en_passant[1] - where_to_move][col - 1] == "")  and self.if_not_checke_after(board, turn, my_color, (row, col, where_to_move)):
+            elif en_passant[0] and row == en_passant[1] and ((col - 1) == en_passant[2] and board[en_passant[1] - where_to_move][col - 1] == "")  and self.if_not_checke_after(board, turn, my_color, (row, col, en_passant[1] - where_to_move, col - 1)):
                 posible_moves.append([row - where_to_move, col - 1, "en_passant_move"])
                 
                 
         else:
             posible_moves = []
                 
-        print(posible_moves)
         return posible_moves
     
        
