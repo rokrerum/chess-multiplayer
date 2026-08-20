@@ -3,14 +3,14 @@ class piece_moves:
         self.board_after_move = []
         self.posible_moves = []
 
+
     def turn_checker(self, turn, piece):
         if turn == "white" and piece.islower():
             return True
-
         elif turn == "black" and piece.isupper():
             return True
-
         return False
+
 
     def if_not_checke_after(self, board, turn, my_color, move):  # this thing is creating same board after posible move to check if there is check
         row, col, row_move, col_move = move[0], move[1], move[2], move[3]
@@ -41,6 +41,7 @@ class piece_moves:
             if 0 <= move[0] <= 7 and 0 <= move[1] <= 7 and board[move[0]][move[1]].lower() == "k" and self.turn_checker(turn, board[move[0]][move[1]]) == False:
                 return False
         return True
+
 
     def pawn_moves(self, board, row, col, turn, my_color, en_passant):
         posible_moves = []
@@ -91,33 +92,6 @@ class piece_moves:
 
         return posible_moves
 
-    def rook_moves(self, board, row, col, turn, my_color):
-        posible_moves = []
-        moves = [
-            [(row - i, col) for i in range(1, row + 1)],
-            [(row + i, col) for i in range(1, 8 - row)],
-            [(row, col - i) for i in range(1, col + 1)],
-            [(row, col + i) for i in range(1, 8 - col)]
-
-        ]
-        if self.turn_checker(turn, board[row][col]):  # check if the piece is the same color as the turn
-            for i in moves:
-                for move in i:
-                    if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                        if len(board[move[0]][move[1]]) == 0:  # if the space is empty
-                            if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
-                                posible_moves.append(move)
-
-                        elif self.turn_checker(turn, board[move[0]][
-                            move[1]]) == False:  # check if the piece is different color
-                            if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
-                                posible_moves.append(move)
-                            break
-
-                        else:  # if the piece is the same color
-                            break
-
-        return posible_moves
 
     def knight_moves(self, board, row, col, turn, my_color):
         posible_moves = []
@@ -140,64 +114,28 @@ class piece_moves:
 
         return posible_moves
 
-    def bishop_moves(self, board, row, col, turn, my_color):
+
+    def sliding_moves(self, board, row, col, turn, my_color, directions):
         posible_moves = []
-        moves = [
-            [(row - i, col - i) for i in range(1, row + 1)],
-            [(row - i, col + i) for i in range(1, row + 1)],
-            [(row + i, col - i) for i in range(1, 8 - row)],
-            [(row + i, col + i) for i in range(1, 8 - row)]
-        ]
-        if self.turn_checker(turn, board[row][col]):
-            for i in moves:
-                for move in i:
-                    if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                        if len(board[move[0]][move[1]]) == 0:
-                            if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
-                                posible_moves.append(move)
+        if not self.turn_checker(turn, board[row][col]):
+            return posible_moves
 
-                        elif self.turn_checker(turn, board[move[0]][move[1]]) == False:
-                            if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
-                                posible_moves.append(move)
-                            break
-                        else:
-                            break
-                    else:
-                        break
+        for dr, dc in directions:
+            move = row + dr, col + dc
+            while 0 <= move[0] < 8 and 0 <= move[1] < 8:
+                if len(board[move[0]][move[1]]) == 0:
+                    if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
+                        posible_moves.append(move)
 
+                elif self.turn_checker(turn, board[move[0]][move[1]]) == False:
+                    if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
+                        posible_moves.append(move)
+                    break
+                else:
+                    break
+                move = move[0] + dr, move[1] + dc
         return posible_moves
 
-    def queen_moves(self, board, row, col, turn, my_color):
-        posible_moves = []
-        moves = [
-            [(row - i, col) for i in range(1, row + 1)],  # rook moves
-            [(row + i, col) for i in range(1, 8 - row)],
-            [(row, col - i) for i in range(1, col + 1)],
-            [(row, col + i) for i in range(1, 8 - col)],
-            [(row - i, col - i) for i in range(1, row + 1)],  # bishop moves
-            [(row - i, col + i) for i in range(1, row + 1)],
-            [(row + i, col - i) for i in range(1, 8 - row)],
-            [(row + i, col + i) for i in range(1, 8 - row)]
-        ]
-
-        if self.turn_checker(turn, board[row][col]):
-
-            for i in moves:
-                for move in i:
-                    if 0 <= move[0] < 8 and 0 <= move[1] < 8:
-                        if len(board[move[0]][move[1]]) == 0:
-                            if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
-                                posible_moves.append(move)
-
-                        elif self.turn_checker(turn, board[move[0]][move[1]]) == False:
-                            if self.if_not_checke_after(board, turn, my_color, (row, col, move[0], move[1])):
-                                posible_moves.append(move)
-                            break
-
-                        else:
-                            break
-
-        return posible_moves
 
     def king_moves(self, board, row, col, turn, castling, my_color):
         posible_moves = []
@@ -370,6 +308,10 @@ class piece_moves:
         check = self.check(board, my_color)
         color = ["white", "black"]
 
+        BISHOP_DIRS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        ROOK_DIRS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        QUEEN_DIRS = ROOK_DIRS + BISHOP_DIRS
+
         for color_turn in range(2):
             if check[color_turn][0]:
                 for r in range(8):
@@ -383,13 +325,13 @@ class piece_moves:
                                 posible_moves.extend(self.knight_moves(board, r, c, color[color_turn], my_color))
 
                             elif board[r][c].lower() == "b":
-                                posible_moves.extend(self.bishop_moves(board, r, c, color[color_turn], my_color))
+                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, BISHOP_DIRS))
 
                             elif board[r][c].lower() == "r":
-                                posible_moves.extend(self.rook_moves(board, r, c, color[color_turn], my_color))
+                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, ROOK_DIRS))
 
                             elif board[r][c].lower() == "q":
-                                posible_moves.extend(self.queen_moves(board, r, c, color[color_turn], my_color))
+                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, QUEEN_DIRS))
 
                             elif board[r][c].lower() == "k":
                                 posible_moves.extend(
@@ -408,6 +350,10 @@ class piece_moves:
         color = ["white", "black"]
         turn = "white" if turn == "black" else "black"
 
+        BISHOP_DIRS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        ROOK_DIRS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        QUEEN_DIRS = ROOK_DIRS + BISHOP_DIRS
+
         for color_turn in range(2):
             if check[color_turn][0] == False:
                 posible_moves = []
@@ -423,13 +369,13 @@ class piece_moves:
                                 posible_moves.extend(self.knight_moves(board, r, c, color[color_turn], my_color))
 
                             elif board[r][c].lower() == "b":
-                                posible_moves.extend(self.bishop_moves(board, r, c, color[color_turn], my_color))
+                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, BISHOP_DIRS))
 
                             elif board[r][c].lower() == "r":
-                                posible_moves.extend(self.rook_moves(board, r, c, color[color_turn], my_color))
+                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, ROOK_DIRS))
 
                             elif board[r][c].lower() == "q":
-                                posible_moves.extend(self.queen_moves(board, r, c, color[color_turn], my_color))
+                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, QUEEN_DIRS))
 
                             elif board[r][c].lower() == "k":
                                 posible_moves.extend(

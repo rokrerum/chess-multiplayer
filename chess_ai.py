@@ -240,6 +240,11 @@ class AI:
         chess_moves = chess.piece_moves()
         moves = []
         move = []
+
+        ROOK_DIRS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        BISHOP_DIRS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        QUEEN_DIRS = ROOK_DIRS + BISHOP_DIRS
+
         for color in range(2):
             if (color == 0 and turn == "white") or (color == 1 and turn == "black"):
                 for r, c in pieces[color]:
@@ -251,13 +256,13 @@ class AI:
                         move = ((r, c), chess_moves.knight_moves(board, r, c, turn, my_color))
 
                     elif piece.lower() == "b":
-                        move = ((r, c), chess_moves.bishop_moves(board, r, c, turn, my_color))
+                        move = ((r, c), chess_moves.sliding_moves(board, r, c, turn, my_color, BISHOP_DIRS))
 
                     elif piece.lower() == "r":
-                        move = ((r, c), chess_moves.rook_moves(board, r, c, turn, my_color))
+                        move = ((r, c), chess_moves.sliding_moves(board, r, c, turn, my_color, ROOK_DIRS))
 
                     elif piece.lower() == "q":
-                        move = ((r, c), chess_moves.queen_moves(board, r, c, turn, my_color))
+                        move = ((r, c), chess_moves.sliding_moves(board, r, c, turn, my_color, QUEEN_DIRS))
 
                     elif piece.lower() == "k":
                         move = ((r, c), chess_moves.king_moves(board, r, c, turn, castling, my_color))

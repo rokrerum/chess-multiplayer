@@ -359,25 +359,27 @@ if __name__ == "__main__":
                                 offset_x = mouse_x - (col * square_size + square_size // 2)
                                 offset_y = mouse_y - (row * square_size + square_size // 2)
 
+                                ROOK_DIRS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+                                BISHOP_DIRS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+                                QUEEN_DIRS = ROOK_DIRS + BISHOP_DIRS
+
                                 if selected_piece.upper() == "P":
-                                    posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color,
-                                                                           game.en_passant)
+                                    posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color, game.en_passant)
 
                                 elif selected_piece.upper() == "R":
-                                    posible_moves = chess_moves.rook_moves(game.board, row, col, turn, my_color)
+                                    posible_moves = chess_moves.sliding_moves(game.board, row, col, turn, my_color, ROOK_DIRS) #Rook
 
                                 elif selected_piece.upper() == "N":
                                     posible_moves = chess_moves.knight_moves(game.board, row, col, turn, my_color)
 
                                 elif selected_piece.upper() == "B":
-                                    posible_moves = chess_moves.bishop_moves(game.board, row, col, turn, my_color)
+                                    posible_moves = chess_moves.sliding_moves(game.board, row, col, turn, my_color, BISHOP_DIRS) #Bishop
 
                                 elif selected_piece.upper() == "K":
-                                    posible_moves = chess_moves.king_moves(game.board, row, col, turn, game.castling,
-                                                                           my_color)
+                                    posible_moves = chess_moves.king_moves(game.board, row, col, turn, game.castling, my_color)
 
                                 elif selected_piece.upper() == "Q":
-                                    posible_moves = chess_moves.queen_moves(game.board, row, col, turn, my_color)
+                                    posible_moves = chess_moves.sliding_moves(game.board, row, col, turn, my_color, QUEEN_DIRS) #Queen
 
                                 game.draw_board()
                                 game.draw_pieces()
