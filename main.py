@@ -6,61 +6,61 @@ import random
 import chess_ai
 import multiplayer
 
-
 global posible_moves
 posible_moves = []
-
-
 class Game:
     def __init__(self):
         self.board = [
-            ["r", "n", "b", "q", "k", "b", "n", "r"], #white
+            ["r", "n", "b", "q", "k", "b", "n", "r"],  # white
             ["p", "p", "p", "p", "p", "p", "p", "p"],
-            ["", "", "", "P", "", "Q", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "p", "", "q", "", ""],
-            ["P", "P", "P", "P", "P", "P", "P", "P"], 
-            ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["P", "P", "P", "P", "P", "P", "P", "P"],
+            ["R", "N", "B", "Q", "K", "B", "N", "R"]  # black
         ]
-        
-        self.places = [[Square([row, col], color = "black" if (col +  row) % 2 else "white") for col in range(8)] for row in range(8)] 
-        
+
+        self.places = [[Square([row, col], color="black" if (col + row) % 2 else "white") for col in range(8)] for row
+                       in range(8)]
+
         self.turn = "white"
         self.move_history = []
         self.en_passant = [False]
-        self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True}, "black": {"king": True, "Rook-L": True, "Rook-R": True}}
+        self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True},
+                         "black": {"king": True, "Rook-L": True, "Rook-R": True}}
         self.halfmove_clock = 0
         self.fullmove_number = 1
         self.check = False
-        #self.threefold_repetition = False
-        #self.fifty_move_rule = False
-        #self.insufficient_material = False
-        #self.fivefold_repetition = False
-    
-    def reset_to_defoult(self):
+        # self.threefold_repetition = False
+        # self.fifty_move_rule = False
+        # self.insufficient_material = False
+        # self.fivefold_repetition = False
+
+    def reset_to_default(self):
         self.board = [
-            ["r", "n", "b", "q", "k", "b", "n", "r"], #white
-            ["p", "p", "p", "p", "p", "p", "p", "p"],
-            ["", "", "", "P", "", "Q", "", ""],
+            ["r", "", "", "", "k", "", "", "r"],  # white
+            ["p", "p", "p", "", "", "", "", "p"],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "q", "p", "", "q", "q", ""],
-            ["P", "P", "P", "P", "P", "P", "P", "P"], 
-            ["R", "N", "B", "Q", "K", "B", "N", "R"] #black
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "Q", "", "Q", "Q", ""],
+            ["P", "P", "P", "P", "P", "P", "P", "P"],
+            ["R", "N", "B", "Q", "K", "B", "N", "R"]  # black
         ]
         self.turn = "white"
         self.move_history = []
         self.en_passant = [False]
-        self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True}, "black": {"king": True, "Rook-L": True, "Rook-R": True}}
+        self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True},
+                         "black": {"king": True, "Rook-L": True, "Rook-R": True}}
         self.check = False
-    
+
 
 class Square:
     def __init__(self, position, color):
         self.position = position
         self.color = color
-    
+
     def __repr__(self):
         piece_info = f", piece={self.piece}" if self.piece else ""
         return f"Square({self.position}, {self.color}{piece_info})"
@@ -71,8 +71,8 @@ class Main:
         pygame.init()
         self.screen = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Szachy Online")
-        
-        
+
+
 class Menu_gui:
     def __init__(self):
         self.surface = create_example_window('Example - Simple', (600, 500))
@@ -83,24 +83,22 @@ class Menu_gui:
             title='Welcome',
             width=400
         )
-        
-        
+
     def set_color(self, color_value):
         self.selected_color = color_value
         print(f"Wybrano kolor: {color_value}")
-        
 
     def menu_gui(self):
         global user_name
         self.menu.clear()
         user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
-        
+
         frame = self.menu.add.frame_h(338, 58)
         white_button = frame.pack(self.menu.add.button('White', self.set_color, 'white'))
-        random_button = frame.pack(self.menu.add.button('Random', self.set_color, 'random')) 
+        random_button = frame.pack(self.menu.add.button('Random', self.set_color, 'random'))
         black_button = frame.pack(self.menu.add.button('Black', self.set_color, 'black'))
         random_button.apply()
-        
+
         self.menu.add.button('Play solo', self.start_the_game_singleplayer)
         self.menu.add.button('Play ai', self.start_the_game_against_ia)
         self.menu.add.button('Play multiplayer', self.start_the_game_multiplayer)
@@ -109,8 +107,7 @@ class Menu_gui:
         self.menu.enable()
         self.menu.center_content()
         self.menu.mainloop(self.surface)
-        
-        
+
     def start_the_game_singleplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
         global two_players
@@ -118,7 +115,7 @@ class Menu_gui:
         self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
-        
+
     def start_the_game_against_ia(self):
         print(f'{user_name.get_value()}, Do the job here!')
         global two_players
@@ -126,7 +123,7 @@ class Menu_gui:
         self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
-        
+
     def start_the_game_multiplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
         global two_players
@@ -134,118 +131,126 @@ class Menu_gui:
         self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
-        
-        
-class game_gui(Game,  Menu_gui):
+
+
+class game_gui(Game, Menu_gui):
     def __init__(self):
         super().__init__()
         self.game = Game()
 
-        
-    def game_interface(self, x = 900, y = 600):
+    def game_interface(self, x=900, y=600):
         pygame.init()
         game = Game()
         global screen, square_size, border_size;
         square_size = int(round(y / 18 * 2))
-        border_size = int(round(y / 18)) 
+        border_size = int(round(y / 18))
 
         screen = pygame.display.set_mode((x, y))
-        
-    
-    def draw_board(self, x = 900, y = 600):
+
+    def draw_board(self, x=900, y=600):
         game = Game()
         font = pygame.font.Font('freesansbold.ttf', border_size)
-        
-        pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y)) #this creates ther border around the board
-        
-        for i in range(1,9): #this loop is for writing the numbers on the board
+
+        pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y))  # this creates ther border around the board
+
+        for i in range(1, 9):  # this loop is for writing the numbers on the board
             text = font.render(f"{9 - i}", True, (220, 0, 133), (22, 200, 100))
-            screen.blit(text, (border_size / 3, (i*square_size)- (square_size - (border_size *1.5))))
-        
+            screen.blit(text, (border_size / 3, (i * square_size) - (square_size - (border_size * 1.5))))
+
         alfabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        for i in range(1,9): #this loop is for writing alfabet on the board
-            text = font.render(alfabet[i-1], True, (220, 0, 133), (22, 200, 100))
-            screen.blit(text, ((i*square_size)- (square_size-(border_size * 1.7)), y - border_size )) 
-        
-        #this for loops are for drawing the board
-        for i in range(1,9):  
-            for j in range(1,9):
-                board_square = game.places[i-1][j-1]
+        for i in range(1, 9):  # this loop is for writing alfabet on the board
+            text = font.render(alfabet[i - 1], True, (220, 0, 133), (22, 200, 100))
+            screen.blit(text, ((i * square_size) - (square_size - (border_size * 1.7)), y - border_size))
+
+            # this for loops are for drawing the board
+        for i in range(1, 9):
+            for j in range(1, 9):
+                board_square = game.places[i - 1][j - 1]
                 if board_square.color == "white":
-                    pygame.draw.rect(screen, (255, 255, 255), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size)) #(rect_x, rect_y, rect_width, rect_height)
+                    pygame.draw.rect(screen, (255, 255, 255), ((j * square_size) - (square_size - border_size),
+                                                               (i * square_size) - (square_size - border_size),
+                                                               square_size,
+                                                               square_size))  # (rect_x, rect_y, rect_width, rect_height)
                 else:
-                    pygame.draw.rect(screen, (100, 100, 100), ((j*square_size)- (square_size-border_size), (i*square_size)- (square_size-border_size), square_size, square_size))
-        
-        pygame.draw.rect(screen, (102, 0, 100), (y, 0, x - y, y)) 
-        
-        
-        if posible_moves != []: #this if statement is for drawing the posible moves for clicked figure
+                    pygame.draw.rect(screen, (100, 100, 100), ((j * square_size) - (square_size - border_size),
+                                                               (i * square_size) - (square_size - border_size),
+                                                               square_size, square_size))
+
+        pygame.draw.rect(screen, (102, 0, 100), (y, 0, x - y, y))
+
+        if posible_moves != []:  # this if statement is for drawing the posible moves for clicked figure
             for move in posible_moves:
                 if len(self.board[move[0]][move[1]]) > 0:
-                    pygame.draw.rect(screen, (255, 0, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
+                    pygame.draw.rect(screen, (255, 0, 0), (((move[1] + 1) * square_size) - (square_size - border_size),
+                                                           ((move[0] + 1) * square_size) - (square_size - border_size),
+                                                           square_size, square_size))
                 else:
-                    pygame.draw.rect(screen, (0, 255, 0), (((move[1]+1) *square_size)- (square_size-border_size), ((move[0]+1) *square_size)- (square_size-border_size), square_size, square_size))
-        
+                    pygame.draw.rect(screen, (0, 255, 0), (((move[1] + 1) * square_size) - (square_size - border_size),
+                                                           ((move[0] + 1) * square_size) - (square_size - border_size),
+                                                           square_size, square_size))
+
         chess_moves = chess.piece_moves()
         self.check = chess_moves.check(self.board, my_color)
-        for i in range(2):  #this for loop is for drawing the check for the king
+        for i in range(2):  # this for loop is for drawing the check for the king
             if self.check[i][0]:
-                pygame.draw.rect(screen, (255, 0, 0), (((self.check[i][1][1] + 1) *square_size)- (square_size-border_size), ((self.check[i][1][0] +1 ) *square_size)- (square_size-border_size), square_size, square_size))
-                
+                pygame.draw.rect(screen, (255, 0, 0),
+                                 (((self.check[i][1][1] + 1) * square_size) - (square_size - border_size),
+                                  ((self.check[i][1][0] + 1) * square_size) - (square_size - border_size), square_size,
+                                  square_size))
+
         pygame.display.update()
-        
-        
+
     def draw_pieces(self):
-        for i in range(0,8): #this for loops are for drawing pieces on the board 
-            for j in range(0,8):
+        for i in range(0, 8):  # this for loops are for drawing pieces on the board
+            for j in range(0, 8):
                 piece = self.board[i][j]
                 if len(piece) == 0:
                     continue
-                
+
                 else:
                     if piece[0].upper() == "P":
                         if piece[0].isupper():
-                            image_path = "assets/pb.png" 
+                            image_path = "assets/pb.png"
                         else:
-                            image_path = "assets/pw.png"   #white
- 
+                            image_path = "assets/pw.png"  # white
+
                     elif piece[0].upper() == "R":
                         if piece[0].isupper():
-                            image_path = "assets/rb.png" 
+                            image_path = "assets/rb.png"
                         else:
                             image_path = "assets/rw.png"
 
                     elif piece[0].upper() == "N":
                         if piece[0].isupper():
-                            image_path = "assets/nb.png" 
+                            image_path = "assets/nb.png"
                         else:
                             image_path = "assets/nw.png"
 
                     elif piece[0].upper() == "B":
                         if piece[0].isupper():
-                            image_path = "assets/bb.png" 
+                            image_path = "assets/bb.png"
                         else:
-                            image_path = "assets/bw.png" 
+                            image_path = "assets/bw.png"
 
                     elif piece[0].upper() == "K":
                         if piece[0].isupper():
-                            image_path = "assets/kb.png" 
+                            image_path = "assets/kb.png"
                         else:
                             image_path = "assets/kw.png"
 
                     elif piece[0].upper() == "Q":
                         if piece[0].isupper():
-                            image_path = "assets/qb.png" 
+                            image_path = "assets/qb.png"
                         else:
                             image_path = "assets/qw.png"
-                            
+
                     image = pygame.image.load(image_path)
                     scaled_image = pygame.transform.scale(image, (64, 64))
-                    screen.blit(scaled_image, (((j + 1)*square_size - border_size, (i + 1)*square_size - border_size))) 
-                
+                    screen.blit(scaled_image,
+                                (((j + 1) * square_size - border_size, (i + 1) * square_size - border_size)))
+
         pygame.display.update()
-        
-        
+
     def show_promotion_menu(self):
         # this is for loading figure graphics
         queen_img = pygame.image.load("assets/qw.png")
@@ -254,8 +259,10 @@ class game_gui(Game,  Menu_gui):
         knight_img = pygame.image.load("assets/nw.png")
 
         # it draws menu of promotion
-        pygame.draw.rect(screen, (200, 200, 200), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5))  # 
-        pygame.draw.rect(screen, (50, 50, 50), (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5), 3)   # border
+        pygame.draw.rect(screen, (200, 200, 200),
+                         (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5))  #
+        pygame.draw.rect(screen, (50, 50, 50),
+                         (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5), 3)  # border
 
         # it show icons ofpieces u can promote into
         screen.blit(queen_img, (square_size * 2.3, square_size * 4))
@@ -264,41 +271,43 @@ class game_gui(Game,  Menu_gui):
         screen.blit(knight_img, (square_size * 5.7, square_size * 4))
 
         pygame.display.update()
-    
-    
+
     def game_ended(self, what_happend, turn):
         font_win_text = pygame.font.Font('freesansbold.ttf', int(border_size * 1.7))
         font_button = pygame.font.Font('freesansbold.ttf', border_size)
-        
-        pygame.draw.rect(screen, (200, 200, 200), (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5))  # 
-        pygame.draw.rect(screen, (50, 50, 50), (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5), 3)   # border
-        
+
+        pygame.draw.rect(screen, (200, 200, 200),
+                         (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5))  #
+        pygame.draw.rect(screen, (50, 50, 50),
+                         (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5), 3)  # border
+
         if what_happend == "mate":
             who_wins = "white" if turn == "black" else "black"
-            text = font_win_text.render(f"{turn.capitalize()} wins", True, (2, 2, 1),)
-            screen.blit(text, (square_size * 2.1, square_size * 3.35, square_size * 2, square_size * 0.75)) 
-        
-        elif what_happend == "stalemate":
-            text = font_win_text.render("Stalemate", True, (2, 2, 1),)
-            screen.blit(text, (square_size * 2.4, square_size * 3.35, square_size * 2, square_size * 0.75)) 
-        
-        pygame.draw.rect(screen, (200, 200, 200), (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75))  # 
-        pygame.draw.rect(screen, (50, 50, 50), (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75), 3)   # border
-        
-        text = font_button.render("Menu", True, (2, 2, 1),)
-        screen.blit(text, (square_size * 3.85, square_size * 5.35, square_size * 2, square_size * 0.75)) 
+            text = font_win_text.render(f"{turn.capitalize()} wins", True, (2, 2, 1), )
+            screen.blit(text, (square_size * 2.1, square_size * 3.35, square_size * 2, square_size * 0.75))
 
+        elif what_happend == "stalemate":
+            text = font_win_text.render("Stalemate", True, (2, 2, 1), )
+            screen.blit(text, (square_size * 2.4, square_size * 3.35, square_size * 2, square_size * 0.75))
+
+        pygame.draw.rect(screen, (200, 200, 200),
+                         (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75))  #
+        pygame.draw.rect(screen, (50, 50, 50),
+                         (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75), 3)  # border
+
+        text = font_button.render("Menu", True, (2, 2, 1), )
+        screen.blit(text, (square_size * 3.85, square_size * 5.35, square_size * 2, square_size * 0.75))
 
         pygame.display.update()
-        
-        
+
+
 if __name__ == "__main__":
-    #game runing###########################
+    # game runing###########################
     chess_moves = chess.piece_moves()
     chess_bot = chess_ai.AI()
     game = game_gui()
     menu = Menu_gui()
-    
+
     global selected_piece, turn, my_color
     turn = "white"
     my_color = "black"
@@ -306,33 +315,34 @@ if __name__ == "__main__":
     dragging = False
     selected_piece = None
     posible_moves = []
-    
+
     menu.menu_gui()
 
     print(menu.selected_color)
     while app_running:
         game_running = True
-        menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color #change color randomly if option random is selected
-        game.reset_to_defoult()
-        
-        if menu.selected_color == "white": #not
+        menu.selected_color = random.choice(("black",
+                                             "white")) if menu.selected_color == "random" else menu.selected_color  # change color randomly if option random is selected
+        game.reset_to_default()
+
+        if menu.selected_color == "white":  # not
             my_color = "white"
-            for i in range(8): #this is for reversing the board if player selected white
+            for i in range(8):  # this is for reversing the board if player selected white
                 game.board[i].reverse()
             game.board.reverse()
         else:
             my_color = "black"
-        
+
         game.draw_board()
         game.draw_pieces()
-    
+
         while game_running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     app_running = False
                     game_running = False
-                
-                if two_players == True and turn == my_color or two_players == False:
+
+                if two_players == True and turn == my_color or two_players == False:  # 1 player (client)
 
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == 1:
@@ -341,17 +351,17 @@ if __name__ == "__main__":
                             row = (mouse_y - border_size) // square_size
 
                             # this check if you clikced on a piece
-                            if row >=0 and col >=0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
+                            if row >= 0 and col >= 0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
                                 dragging = True
                                 offset_x = mouse_x - (col * square_size + square_size // 2)
 
                                 selected_piece = str(game.board[row][col][0])
                                 offset_x = mouse_x - (col * square_size + square_size // 2)
                                 offset_y = mouse_y - (row * square_size + square_size // 2)
-                                
-                            
-                                if selected_piece.upper() == "P": 
-                                    posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color, game.en_passant)
+
+                                if selected_piece.upper() == "P":
+                                    posible_moves = chess_moves.pawn_moves(game.board, row, col, turn, my_color,
+                                                                           game.en_passant)
 
                                 elif selected_piece.upper() == "R":
                                     posible_moves = chess_moves.rook_moves(game.board, row, col, turn, my_color)
@@ -363,7 +373,8 @@ if __name__ == "__main__":
                                     posible_moves = chess_moves.bishop_moves(game.board, row, col, turn, my_color)
 
                                 elif selected_piece.upper() == "K":
-                                    posible_moves = chess_moves.king_moves(game.board, row, col, turn, game.castling, my_color)
+                                    posible_moves = chess_moves.king_moves(game.board, row, col, turn, game.castling,
+                                                                           my_color)
 
                                 elif selected_piece.upper() == "Q":
                                     posible_moves = chess_moves.queen_moves(game.board, row, col, turn, my_color)
@@ -386,9 +397,11 @@ if __name__ == "__main__":
 
                             if len(posible_moves) != 0:
                                 for i in posible_moves:
-                                    if new_row >=0 and new_col >=0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
-                                    
-                                        if game.board[row][col] in ("K", "k", "R", "r"): # if you move a king or a rook u cant use it for castling
+                                    if new_row >= 0 and new_col >= 0 and new_row <= 7 and new_col <= 7 and i[
+                                        0] == new_row and i[1] == new_col:
+
+                                        if game.board[row][col] in ("K", "k", "R",
+                                                                    "r"):  # if you move a king or a rook u cant use it for castling
                                             if game.board[row][col] in ("K", "k"):
                                                 if game.board[row][col] == "k":
                                                     for state in game.castling["white"]:
@@ -396,23 +409,23 @@ if __name__ == "__main__":
                                                 else:
                                                     for state in game.castling["black"]:
                                                         game.castling["black"][state] = False
-                                                    
-                                                
-                                            elif game.board[row][col] in ("R", "r"): #this will be activated if rook is moved and castling will not be posible with it
+
+
+                                            elif game.board[row][col] in ("R",
+                                                                          "r"):  # this will be activated if rook is moved and castling will not be posible with it
                                                 if game.board[row][col] == "r":
                                                     if col == 0 and row in (0, 7):
                                                         game.castling["white"]["Rook-L"] = False
                                                     elif col == 7 and row in (0, 7):
                                                         game.castling["white"]["Rook-R"] = False
-                                                    
+
                                                 else:
                                                     if col == 0 and row in (0, 7):
                                                         game.castling["black"]["Rook-L"] = False
                                                     elif col == 7 and row in (0, 7):
                                                         game.castling["black"]["Rook-R"] = False
-                                                        
-                                                        
-                                        if len(i) == 3: #checking if the move is castling and if it is, it will move the rook
+
+                                        if len(i) == 3:  # checking if the move is castling and if it is, it will move the rook
                                             if game.board[row][col].lower() == "k":
                                                 if new_col < col:
                                                     game.board[row][new_col + 1] = game.board[row][0]
@@ -420,21 +433,20 @@ if __name__ == "__main__":
                                                 else:
                                                     game.board[row][new_col - 1] = game.board[row][0]
                                                     game.board[row][7] = ""
-                                                    
-                                            elif game.board[row][col].lower() == "p" and i[2] == "en_passant": 
+
+                                            elif game.board[row][col].lower() == "p" and i[2] == "en_passant":
                                                 game.en_passant = [True, new_row, new_col]
-                                                
+
                                             elif game.board[row][col].lower() == "p" and i[2] == "en_passant_move":
                                                 game.en_passant = [False]
-                                                game.board[row][new_col] = "" 
-                                        
+                                                game.board[row][new_col] = ""
+
                                         else:
                                             game.en_passant = [False]
-                                            
-                                                
-                                        if game.board[row][col] in ("p", "P"): # if pawn moves to the last row, it will be promoted
-                                            if new_row in (0, 7): #promotion of the client player
-                                                if two_players == False: # if it is silgle player, the player can choose what piece to promote to
+
+                                        if game.board[row][col] in ("p", "P"):  # if pawn moves to the last row, it will be promoted
+                                            if new_row in (0, 7):  # promotion of the client player
+                                                if two_players == False:  # if it is silgle player, the player can choose what piece to promote to
 
                                                     game.show_promotion_menu()
                                                     waiting = True
@@ -443,32 +455,32 @@ if __name__ == "__main__":
                                                             if event.type == pygame.MOUSEBUTTONDOWN:
                                                                 mouse_x, mouse_y = event.pos
                                                                 x, y = square_size, square_size
-                                                                
+
                                                                 # this checks if player clicked on the icons of pieces u can promote your pown into
                                                                 if x * 2.3 <= mouse_x <= (x * 2.3) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                     game.board[row][col] = "q" if turn == "white" else "Q"
                                                                     waiting = False
-                                                                    
+
                                                                 elif x * 3.4 <= mouse_x <= (x * 3.4) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                     game.board[row][col] = "r" if turn == "white" else "R"
                                                                     waiting = False
-                                                                    
+
                                                                 elif x * 4.6 <= mouse_x <= (x * 4.6) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                     game.board[row][col] = "b" if turn == "white" else "B"
                                                                     waiting = False
-                                                                    
+
                                                                 elif x * 5.7 <= mouse_x <= (x * 5.7) + 64 and y * 4 <= mouse_y <= y * 4 + square_size * 0.9:
                                                                     game.board[row][col] = "n" if turn == "white" else "N"
                                                                     waiting = False
-                                                
-                                                else: # if it is multiplayer, the AI or another player will choose what piece to promote to
+
+                                                else:  # if it is multiplayer, the AI or another player will choose what piece to promote to
                                                     pass
-                                                
+
                                         game.board[new_row][new_col] = game.board[row][col]
                                         game.board[row][col] = ""
 
-
-                                        mate =  chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant) #this shows end window after one of the players is mated
+                                        mate = chess_moves.check_mate(game.board, my_color, game.castling,
+                                                                      game.en_passant)  # this shows end window after one of the players is mated
                                         if mate[0] or mate[1]:
                                             posible_moves = []
                                             game.draw_board()
@@ -481,15 +493,17 @@ if __name__ == "__main__":
                                                     if event.type == pygame.MOUSEBUTTONDOWN:
                                                         mouse_x, mouse_y = event.pos
                                                         x, y = square_size, square_size
-                                                        
-                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
+
+                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
+                                                                square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
+                                                                square_size * 0.75):
                                                             waiting = False
-                                                            #need to add better returnning to menu like reshaping window
+                                                            # need to add better returnning to menu like reshaping window
                                                             menu.menu_gui()
                                                             game_running = False
-                                                                
-                                            
-                                        stalemate =  chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
+
+                                        stalemate = chess_moves.is_stalemate(game.board, my_color, game.castling, turn,
+                                                                             game.en_passant)
                                         if stalemate[0] or stalemate[1]:
                                             posible_moves = []
                                             game.draw_board()
@@ -502,34 +516,105 @@ if __name__ == "__main__":
                                                     if event.type == pygame.MOUSEBUTTONDOWN:
                                                         mouse_x, mouse_y = event.pos
                                                         x, y = square_size, square_size
-                                                        
-                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (square_size * 0.75):
+
+                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
+                                                                square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
+                                                                square_size * 0.75):
                                                             waiting = False
-                                                            #need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
+                                                            # need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
                                                             menu.menu_gui()
-                                                            game_running = False                                                                
-                                            
+                                                            game_running = False
+
                                         posible_moves = []
                                         game.draw_board()
                                         game.draw_pieces()
-                                        
+
                                         turn = "white" if turn == "black" else "black"
-                                        
-                                        
-                elif two_players == True and turn != my_color: # 2 players
-                    if True: # AI turn (against AI)
+                                        print(row, col, " | ", new_row, new_col)
+
+
+                elif two_players == True and turn != my_color:  # 2 players
+                    if True:  # AI turn (against AI)
                         ia_move = chess_bot.ai(game.board, turn, my_color, game.en_passant, game.castling)
                         turn = "white" if turn == "black" else "black"
-                        
-                        print("działa")
-                        row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], ia_move[1][1][1]
+                        row, col = ia_move[1][0][0], ia_move[1][0][1]
+
+                        if game.board[row][col] in ("K", "k", "R", "r"):  # if you move a king or a rook u cant use it for castling
+                            if game.board[row][col] in ("K", "k"):
+                                if game.board[row][col] == "k":
+                                    for state in game.castling["white"]:
+                                        game.castling["white"][state] = False
+                                else:
+                                    for state in game.castling["black"]:
+                                        game.castling["black"][state] = False
+
+
+                            elif game.board[row][col] in ("R", "r"):  # this will be activated if rook is moved and castling will not be posible with it
+                                if game.board[row][col] == "r":
+                                    if col == 0 and row in (0, 7):
+                                        game.castling["white"]["Rook-L"] = False
+                                    elif col == 7 and row in (0, 7):
+                                        game.castling["white"]["Rook-R"] = False
+
+                                else:
+                                    if col == 0 and row in (0, 7):
+                                        game.castling["black"]["Rook-L"] = False
+                                    elif col == 7 and row in (0, 7):
+                                        game.castling["black"]["Rook-R"] = False
+
+                        row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], \
+                        ia_move[1][1][1]
                         game.board[new_row][new_col] = game.board[row][col]
                         game.board[row][col] = ""
-                        
+
+                        mate = chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant)  # this shows end window after one of the players is mated
+                        if mate[0] or mate[1]: # gives return menu to user after compliting a game
+                            posible_moves = []
+                            game.draw_board()
+                            game.draw_pieces()
+                            print("mate")
+                            game.game_ended("mate", turn)
+                            waiting = True
+                            while waiting:
+                                for event in pygame.event.get():
+                                    if event.type == pygame.MOUSEBUTTONDOWN:
+                                        mouse_x, mouse_y = event.pos
+                                        x, y = square_size, square_size
+
+                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
+                                                square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
+                                                square_size * 0.75):
+                                            waiting = False
+                                            # need to add better returnning to menu like reshaping window
+                                            menu.menu_gui()
+                                            game_running = False
+
+                        stalemate = chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
+                        if stalemate[0] or stalemate[1]: # gives return menu to user after compliting a game
+                            posible_moves = []
+                            game.draw_board()
+                            game.draw_pieces()
+                            print("stalemate")
+                            game.game_ended("stalemate", turn)
+                            waiting = True
+                            while waiting:
+                                for event in pygame.event.get():
+                                    if event.type == pygame.MOUSEBUTTONDOWN:
+                                        mouse_x, mouse_y = event.pos
+                                        x, y = square_size, square_size
+
+                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
+                                                square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
+                                                square_size * 0.75):
+                                            waiting = False
+                                            # need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
+                                            menu.menu_gui()
+                                            game_running = False
+
                         game.draw_board()
                         game.draw_pieces()
-                        
-                    elif True: # another player turn (against another player online)
-                        pass    
-                    
-#made by: rokrerum
+
+                    elif True:  # another player turn (against another player online)
+                        pass
+
+                        # made by: rokrerum
