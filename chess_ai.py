@@ -314,10 +314,7 @@ class AI:
         for color in range(2):
             for r, c in pieces[color]:
                 points += values[board[r][c].lower()]
-                if my_color == turn:
-                    row, col = r, c
-                else:
-                    row, col = 7 - r, 7 - c
+                row, col = (r, c) if color == 0 else (7 - r, c)
                 points += self.game_phases[phase][board[r][c].lower()][row][col]
 
             if color == 0:

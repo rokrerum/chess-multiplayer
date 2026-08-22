@@ -138,6 +138,19 @@ class game_gui(Game, Menu_gui):
         super().__init__()
         self.game = Game()
 
+
+    def to_screen(self, row, col, my_color):
+        if my_color == "white":
+            return 7 - row, 7 - col
+        return row, col
+
+
+    def to_board(self, screen_row, screen_col, my_color):
+        if my_color == "white":
+            return 7 - screen_row, 7 - screen_col
+        return screen_row, screen_col
+
+
     def game_interface(self, x=900, y=600):
         pygame.init()
         game = Game()
@@ -162,7 +175,7 @@ class game_gui(Game, Menu_gui):
             text = font.render(alfabet[i - 1], True, (220, 0, 133), (22, 200, 100))
             screen.blit(text, ((i * square_size) - (square_size - (border_size * 1.7)), y - border_size))
 
-            # this for loops are for drawing the board
+        # this for loops are for drawing the board
         for i in range(1, 9):
             for j in range(1, 9):
                 board_square = game.places[i - 1][j - 1]
@@ -180,25 +193,42 @@ class game_gui(Game, Menu_gui):
 
         if posible_moves != []:  # this if statement is for drawing the posible moves for clicked figure
             for move in posible_moves:
+                row, col = self.to_board(move[0], move[1], my_color)
                 if len(self.board[move[0]][move[1]]) > 0:
-                    pygame.draw.rect(screen, (255, 0, 0), (((move[1] + 1) * square_size) - (square_size - border_size),
-                                                           ((move[0] + 1) * square_size) - (square_size - border_size),
-                                                           square_size, square_size))
+                    pygame.draw.rect(
+                        screen,
+                        (255, 0, 0),
+                        (
+                        ((col + 1) * square_size) - (square_size - border_size),
+                        ((row + 1) * square_size) - (square_size - border_size),
+                        square_size,
+                        square_size
+                        )
+                    )
                 else:
-                    pygame.draw.rect(screen, (0, 255, 0), (((move[1] + 1) * square_size) - (square_size - border_size),
-                                                           ((move[0] + 1) * square_size) - (square_size - border_size),
-                                                           square_size, square_size))
+                    pygame.draw.rect(
+                        screen,
+                        (0, 255, 0),
+                        (
+                        ((col + 1) * square_size) - (square_size - border_size),
+                        ((row + 1) * square_size) - (square_size - border_size),
+                        square_size,
+                        square_size,
+                        ),
+                    )
 
         chess_moves = chess.piece_moves()
         self.check = chess_moves.check(self.board, my_color)
         for i in range(2):  # this for loop is for drawing the check for the king
             if self.check[i][0]:
+                row, col = self.to_board(self.check[i][1][0] , self.check[i][1][1] , my_color)
                 pygame.draw.rect(screen, (255, 0, 0),
-                                 (((self.check[i][1][1] + 1) * square_size) - (square_size - border_size),
-                                  ((self.check[i][1][0] + 1) * square_size) - (square_size - border_size), square_size,
+                                 (((col + 1) * square_size) - (square_size - border_size),
+                                  ((row + 1) * square_size) - (square_size - border_size), square_size,
                                   square_size))
 
         pygame.display.update()
+        print(self.board)
 
     def draw_pieces(self):
         for i in range(0, 8):  # this for loops are for drawing pieces on the board
@@ -246,8 +276,8 @@ class game_gui(Game, Menu_gui):
 
                     image = pygame.image.load(image_path)
                     scaled_image = pygame.transform.scale(image, (64, 64))
-                    screen.blit(scaled_image,
-                                (((j + 1) * square_size - border_size, (i + 1) * square_size - border_size)))
+                    row, col = self.to_board(i, j, my_color)
+                    screen.blit(scaled_image, (((col + 1) * square_size - border_size, (row + 1) * square_size - border_size)))
 
         pygame.display.update()
 
@@ -321,15 +351,11 @@ if __name__ == "__main__":
     print(menu.selected_color)
     while app_running:
         game_running = True
-        menu.selected_color = random.choice(("black",
-                                             "white")) if menu.selected_color == "random" else menu.selected_color  # change color randomly if option random is selected
+        menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color  # change color randomly if option random is selected
         game.reset_to_default()
 
         if menu.selected_color == "white":  # not
             my_color = "white"
-            for i in range(8):  # this is for reversing the board if player selected white
-                game.board[i].reverse()
-            game.board.reverse()
         else:
             my_color = "black"
 
@@ -349,6 +375,7 @@ if __name__ == "__main__":
                             mouse_x, mouse_y = event.pos
                             col = (mouse_x - border_size) // square_size
                             row = (mouse_y - border_size) // square_size
+                            row, col = game.to_board(row, col, my_color)
 
                             # this check if you clikced on a piece
                             if row >= 0 and col >= 0 and row <= 7 and col <= 7 and len(game.board[row][col]) > 0:
@@ -394,6 +421,7 @@ if __name__ == "__main__":
                             mouse_x, mouse_y = event.pos
                             new_col = (mouse_x - border_size) // square_size
                             new_row = (mouse_y - border_size) // square_size
+                            new_row, new_col = game.to_board(new_row, new_col, my_color)
                             piece_pos = (new_row, new_col)
                             dragging = False
 

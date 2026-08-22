@@ -42,18 +42,17 @@ class piece_moves:
                 return False
         return True
 
-
     def pawn_moves(self, board, row, col, turn, my_color, en_passant):
         posible_moves = []
-        where_to_move = 1 if my_color == turn else -1
-
-        if self.turn_checker(turn, board[row][col]):  # check if the piece is the same cpolor as the turn
-            if len(board[row - where_to_move][col]) == 0 and self.if_not_checke_after(board, turn, my_color, (row, col, row - where_to_move ,col)):
+        where_to_move = -1 if board[row][col].islower() else 1
+        if self.turn_checker(turn, board[row][col]):
+            if len(board[row - where_to_move][col]) == 0 and self.if_not_checke_after(board, turn, my_color, (row, col, row - where_to_move, col)):
                 posible_moves.append([row - where_to_move, col])
 
                 if 0 <= row - (where_to_move * 2) <= 7:
-                    if len(board[row - (where_to_move * 2)][col]) == 0 and ((row == 6 and my_color == turn) or (
-                            row == 1 and my_color != turn)) and self.if_not_checke_after(board, turn, my_color,(row, col, row - (where_to_move * 2),col)):
+                    if len(board[row - (where_to_move * 2)][col]) == 0 and \
+                            ((row == 1 and board[row][col].islower()) or (row == 6 and board[row][col].isupper())) and \
+                            self.if_not_checke_after(board, turn, my_color, (row, col, row - (where_to_move * 2), col)):
 
                         if (0 <= col + 1 <= 7 and board[row - (where_to_move * 2)][col + 1].lower() == "p" and
                                 board[row - (where_to_move * 2)][col + 1] != board[row][col]) or \
@@ -235,8 +234,7 @@ class piece_moves:
                 (row - 1, col - 2)
             ]
 
-            where_to_move = -1 if (my_color == "black" and board[row][col] == "K") or (
-                        my_color == "white" and board[row][col] == "k") else 1
+            where_to_move = 1 if board[row][col] == "k" else -1
             posible_ataks_pawn = [
                 (row + where_to_move, col - 1),
                 (row + where_to_move, col + 1)
