@@ -15,6 +15,7 @@ class piece_moves:
     def if_not_checke_after(self, board, turn, my_color, move):  # this thing is creating same board after posible move to check if there is check
         row, col, row_move, col_move = move[0], move[1], move[2], move[3]
         self.board_after_move = [list(row) for row in board]
+
         self.board_after_move[row_move][col_move] = board[row][col]
         self.board_after_move[row][col] = ""
 
@@ -158,11 +159,9 @@ class piece_moves:
                                                                                                   col - 2)):
                         posible_moves.append((row, col - 2, "castling"))
 
-                    if castling["white"]["king"] and castling["white"]["Rook-R"] and board[row][7] == "r" and sum(
-                            len(i) for i in board[row][col + 1:7]) == 0 and self.if_not_checke_after(board, turn,
-                                                                                                     my_color,
-                                                                                                     (row, col, row,
-                                                                                                      col + 2)):
+                    if (castling["white"]["king"] and castling["white"]["Rook-R"] and board[row][7] == "r" and
+                            sum(len(i) for i in board[row][col + 1:7]) == 0 and
+                            self.if_not_checke_after(board, turn, my_color, (row, col, row, col + 2))):
                         posible_moves.append((row, col + 2, "castling"))
 
 

@@ -40,11 +40,11 @@ class Game:
     def reset_to_default(self):
         self.board = [
             ["r", "", "", "", "k", "", "", "r"],  # white
-            ["p", "p", "p", "", "", "", "", "p"],
+            ["p", "p", "p", "", "", "", "P", "p"],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "Q", "", "Q", "Q", ""],
+            ["", "", "", "Q", "", "Q", "", ""],
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"]  # black
         ]
@@ -193,7 +193,7 @@ class game_gui(Game, Menu_gui):
 
         if posible_moves != []:  # this if statement is for drawing the posible moves for clicked figure
             for move in posible_moves:
-                row, col = self.to_board(move[0], move[1], my_color)
+                row, col = self.to_board(move[0], move[1], my_color) #changes the values to be correct with position of what player sees
                 if len(self.board[move[0]][move[1]]) > 0:
                     pygame.draw.rect(
                         screen,
@@ -221,7 +221,7 @@ class game_gui(Game, Menu_gui):
         self.check = chess_moves.check(self.board, my_color)
         for i in range(2):  # this for loop is for drawing the check for the king
             if self.check[i][0]:
-                row, col = self.to_board(self.check[i][1][0] , self.check[i][1][1] , my_color)
+                row, col = self.to_board(self.check[i][1][0] , self.check[i][1][1] , my_color) #changes the values to be correct with position of what player sees
                 pygame.draw.rect(screen, (255, 0, 0),
                                  (((col + 1) * square_size) - (square_size - border_size),
                                   ((row + 1) * square_size) - (square_size - border_size), square_size,
@@ -276,7 +276,7 @@ class game_gui(Game, Menu_gui):
 
                     image = pygame.image.load(image_path)
                     scaled_image = pygame.transform.scale(image, (64, 64))
-                    row, col = self.to_board(i, j, my_color)
+                    row, col = self.to_board(i, j, my_color) #changes the values to be correct with position of what player sees
                     screen.blit(scaled_image, (((col + 1) * square_size - border_size, (row + 1) * square_size - border_size)))
 
         pygame.display.update()
@@ -581,9 +581,9 @@ if __name__ == "__main__":
 
                             elif game.board[row][col] in ("R", "r"):  # this will be activated if rook is moved and castling will not be posible with it
                                 if game.board[row][col] == "r":
-                                    if col == 0 and row in (0, 7):
+                                    if col == 0 and row == 0:
                                         game.castling["white"]["Rook-L"] = False
-                                    elif col == 7 and row in (0, 7):
+                                    elif col == 7 and row == 0:
                                         game.castling["white"]["Rook-R"] = False
 
                                 else:
@@ -592,10 +592,24 @@ if __name__ == "__main__":
                                     elif col == 7 and row in (0, 7):
                                         game.castling["black"]["Rook-R"] = False
 
-                        row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], \
-                        ia_move[1][1][1]
+                        row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], ia_move[1][1][1]
                         game.board[new_row][new_col] = game.board[row][col]
                         game.board[row][col] = ""
+
+                        print("dssdsds", game.board[new_row][new_col])
+                        if game.board[new_row][new_col].lower() == "p" and new_row in (0, 7):# promotes powns to queens
+                            game.board[new_row][new_col] = "q" if my_color == "black" else "Q"
+                            print("dssdsds", game.board[new_row][new_col])
+                            print
+
+                        if abs(new_col - col) > 1:  # checking if the move is castling and if it is, it will move the rook
+                            if game.board[row][col].lower() == "k":
+                                if new_col < col:
+                                    game.board[row][new_col + 1] = game.board[row][0]
+                                    game.board[row][0] = ""
+                                else:
+                                    game.board[row][new_col - 1] = game.board[row][0]
+                                    game.board[row][7] = ""
 
                         mate = chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant)  # this shows end window after one of the players is mated
                         if mate[0] or mate[1]: # gives return menu to user after compliting a game

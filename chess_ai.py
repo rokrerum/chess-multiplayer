@@ -216,6 +216,8 @@ class AI:
             for move_set in range(len(moves)):
                 for move in moves[move_set][1]:
                     board_after_move = self.board_after_move(board, (moves[move_set][0], move))
+                    print(move, board_after_move)
+                    castling = self.move_castle(board, castling, move[0], move[1])
                     value = self.min_max(depht - 1, board_after_move, my_color, next_turn, en_passant, castling)
                     if value[0] > max_val:
                         max_val = value[0]
@@ -229,6 +231,7 @@ class AI:
             for move_set in range(len(moves)):
                 for move in moves[move_set][1]:
                     board_after_move = self.board_after_move(board, (moves[move_set][0], move))
+                    castling = self.move_castle(board, castling, move[0], move[1])
                     value = self.min_max(depht - 1, board_after_move, my_color, next_turn, en_passant, castling)
                     if min_val > value[0]:
                         best_move = (moves[move_set][0], move)
@@ -340,6 +343,10 @@ class AI:
     def board_after_move(self, board, move):
         row, col, row_move, col_move = move[0][0], move[0][1], move[1][0], move[1][1]
         board_after_move = [list(row) for row in board]
+        piece = board[row][col]
+        if piece.lower() == "p" and row_move in (0, 7):# checks if pice is a pown and promotes it
+            piece = "q" if piece.islower() else "Q"
+
         board_after_move[row_move][col_move] = board[row][col]
         board_after_move[row][col] = ""
 
@@ -358,5 +365,32 @@ class AI:
             return "middlegame"
         else:
             return "endgame"
+       
+        
+    def move_castle(self, board, castling, row, col):
+        if board[row][col] in ("K", "k", "R", "r"):  # if you move a king or a rook u cant use it for castling
+            print(board[row][col])
+            if board[row][col] in ("K", "k"):
+                print("s")
+                if board[row][col] == "k":
+                    for state in castling["white"]:
+                        castling["white"][state] = False
+                else:
+                    for state in castling["black"]:
+                        castling["black"][state] = False
 
+            elif board[row][col] in ("R", "r"):  # this will be activated if rook is moved and castling will not be posible with it
+                if board[row][col] == "r":
+                    if col == 0 and row == 0:
+                        castling["white"]["Rook-L"] = False
+                    elif col == 7 and row == 0:
+                        castling["white"]["Rook-R"] = False
+
+                else:
+                    if col == 0 and row in (0, 7):
+                        castling["black"]["Rook-L"] = False
+                    elif col == 7 and row in (0, 7):
+                        castling["black"]["Rook-R"] = False
+
+        return castling
 # made by: rokrerum
