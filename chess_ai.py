@@ -1,4 +1,5 @@
 import chess
+import copy
 
 
 class AI:
@@ -215,10 +216,11 @@ class AI:
             moves = self.all_moves(board, pieces, turn, my_color, en_passant, castling)
             for move_set in range(len(moves)):
                 for move in moves[move_set][1]:
-                    board_after_move = self.board_after_move(board, (moves[move_set][0], move))
+                    board_after_move = self.board_after_move(board, (moves[move_set][0], move)) #
                     print(move, board_after_move)
-                    castling = self.move_castle(board, castling, move[0], move[1])
-                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, en_passant, castling)
+                    new_castling = self.move_castle(board_after_move, castling, move[0], move[1])
+                    new_en_passant = self.move_en_passant(board_after_move, en_passant, moves[move_set][0][0], move[0], move[1])
+                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling)
                     if value[0] > max_val:
                         max_val = value[0]
                         best_move = (moves[move_set][0], move)
@@ -230,9 +232,10 @@ class AI:
             moves = self.all_moves(board, pieces, turn, my_color, en_passant, castling)
             for move_set in range(len(moves)):
                 for move in moves[move_set][1]:
-                    board_after_move = self.board_after_move(board, (moves[move_set][0], move))
-                    castling = self.move_castle(board, castling, move[0], move[1])
-                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, en_passant, castling)
+                    board_after_move = self.board_after_move(board, (moves[move_set][0], move)) # old location and new in variables
+                    new_castling = self.move_castle(board_after_move, castling, move[0], move[1])
+                    new_en_passant = self.move_en_passant(board_after_move, en_passant, moves[move_set][0][0], move[0], move[1])
+                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling)
                     if min_val > value[0]:
                         best_move = (moves[move_set][0], move)
                         min_val = value[0]
@@ -295,7 +298,7 @@ class AI:
         stalemate = chess_moves.is_stalemate(board, my_color, castling, turn, en_passant)
         if mate[0] or mate[1]:
             if my_color == "black":
-                return 999999 if mate[0] else -999999
+                return -999999 if mate[0] else 999999
             else:
                 return -999999 if mate[1] else 999999
 
@@ -340,6 +343,7 @@ class AI:
             return True
         return False
 
+
     def board_after_move(self, board, move):
         row, col, row_move, col_move = move[0][0], move[0][1], move[1][0], move[1][1]
         board_after_move = [list(row) for row in board]
@@ -351,6 +355,7 @@ class AI:
         board_after_move[row][col] = ""
 
         return board_after_move
+
 
     def game_phase_checker(self, board, pieces): #to change
         values = {"q": 4, "r": 2, "b": 1, "n": 1, "k": 0, "p": 0}
@@ -365,32 +370,38 @@ class AI:
             return "middlegame"
         else:
             return "endgame"
-       
-        
-    def move_castle(self, board, castling, row, col):
-        if board[row][col] in ("K", "k", "R", "r"):  # if you move a king or a rook u cant use it for castling
-            print(board[row][col])
-            if board[row][col] in ("K", "k"):
-                print("s")
-                if board[row][col] == "k":
-                    for state in castling["white"]:
-                        castling["white"][state] = False
-                else:
-                    for state in castling["black"]:
-                        castling["black"][state] = False
 
-            elif board[row][col] in ("R", "r"):  # this will be activated if rook is moved and castling will not be posible with it
-                if board[row][col] == "r":
-                    if col == 0 and row == 0:
-                        castling["white"]["Rook-L"] = False
-                    elif col == 7 and row == 0:
-                        castling["white"]["Rook-R"] = False
 
-                else:
-                    if col == 0 and row in (0, 7):
-                        castling["black"]["Rook-L"] = False
-                    elif col == 7 and row in (0, 7):
-                        castling["black"]["Rook-R"] = False
+    def move_castle(self, board_after, castling, row, col):
+        castling = copy.deepcopy(castling)
 
+        moved_piece = board_after[row][col]
+        if moved_piece == "k":
+            for state in castling["white"]:
+                castling["white"][state] = False
+        elif moved_piece == "K":
+            for state in castling["black"]:
+                castling["black"][state] = False
+
+        if board_after[0][0] != "r":
+            castling["white"]["Rook-L"] = False
+        if board_after[0][7] != "r":
+            castling["white"]["Rook-R"] = False
+        if board_after[7][0] != "R":
+            castling["black"]["Rook-L"] = False
+        if board_after[7][7] != "R":
+            castling["black"]["Rook-R"] = False
         return castling
+
+
+    def move_en_passant(self, board_after, en_passant, row, new_row, new_col):
+        if board_after[new_row][new_col].lower() == "p":
+            if abs(row - new_row) == 2:
+                return [True, new_row, new_col]
+            else:
+                return [False]
+        else:
+            return [False]
+
+
 # made by: rokrerum

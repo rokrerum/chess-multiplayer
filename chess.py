@@ -299,7 +299,7 @@ class piece_moves:
 
         return posible_checks
 
-    def check_mate(self, board, my_color, castling, en_passant):  # not working yet
+    def check_mate(self, board, my_color, castling, en_passant):
         mate = [False, False]
         posible_moves = []
         check = self.check(board, my_color)

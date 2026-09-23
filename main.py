@@ -40,11 +40,11 @@ class Game:
     def reset_to_default(self):
         self.board = [
             ["r", "", "", "", "k", "", "", "r"],  # white
-            ["p", "p", "p", "", "", "", "P", "p"],
+            ["p", "p", "p", "", "", "", "", "p"],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "", "Q", "", "Q", "", ""],
+            ["", "", "Q", "Q", "", "Q", "", ""],
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"]  # black
         ]
@@ -455,7 +455,7 @@ if __name__ == "__main__":
                                                     elif col == 7 and row in (0, 7):
                                                         game.castling["black"]["Rook-R"] = False
 
-                                        if len(i) == 3:  # checking if the move is castling and if it is, it will move the rook
+                                        if len(i) == 3:  # checking if the move is castling and if it is then it will move the rook ,or checks if it is enpassant
                                             if game.board[row][col].lower() == "k":
                                                 if new_col < col:
                                                     game.board[row][new_col + 1] = game.board[row][0]
@@ -600,7 +600,13 @@ if __name__ == "__main__":
                         if game.board[new_row][new_col].lower() == "p" and new_row in (0, 7):# promotes powns to queens
                             game.board[new_row][new_col] = "q" if my_color == "black" else "Q"
                             print("dssdsds", game.board[new_row][new_col])
-                            print
+
+
+                        if game.board[new_row][new_col].lower() == "p" and abs(new_row - row) == 2: # saves that ai used 2 tile move of pawn it is for en passant
+                            game.en_passant = [True, new_row, new_col]
+                        else:
+                            game.en_passant = [False]
+
 
                         if abs(new_col - col) > 1:  # checking if the move is castling and if it is, it will move the rook
                             if game.board[row][col].lower() == "k":
