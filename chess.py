@@ -26,6 +26,7 @@ class piece_moves:
 
         return True
 
+
     def if_king_near(self, board, row, col, turn):
         moves = [
             (row + 1, col - 1),
@@ -42,6 +43,7 @@ class piece_moves:
             if 0 <= move[0] <= 7 and 0 <= move[1] <= 7 and board[move[0]][move[1]].lower() == "k" and self.turn_checker(turn, board[move[0]][move[1]]) == False:
                 return False
         return True
+
 
     def pawn_moves(self, board, row, col, turn, my_color, en_passant):
         posible_moves = []
@@ -191,6 +193,7 @@ class piece_moves:
 
         return posible_moves
 
+
     def check(self, board, my_color):
         kings = [[], []]
         for i in range(8):
@@ -299,6 +302,7 @@ class piece_moves:
 
         return posible_checks
 
+
     def check_mate(self, board, my_color, castling, en_passant):
         mate = [False, False]
         posible_moves = []
@@ -341,6 +345,7 @@ class piece_moves:
 
         return mate
 
+
     def is_stalemate(self, board, my_color, castling, turn, en_passant):
         stalemate = [False, False]
         check = self.check(board, my_color)
@@ -381,7 +386,6 @@ class piece_moves:
                 moves = sum(len(i) for i in posible_moves)
                 if moves == 0 and ((color_turn == 0 and turn == "white") or (color_turn == 1 and turn == "black")):
                     stalemate[color_turn] = True
-
         return stalemate
 
 # made by: rokrerum

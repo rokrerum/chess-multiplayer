@@ -1,7 +1,6 @@
 import chess
 import copy
 
-
 class AI:
     def __init__(self):
         self.best_score = 0
@@ -197,10 +196,12 @@ class AI:
             }
         }
 
+
     def ai(self, board, turn, my_color, en_passant, castling):
         move = self.min_max(2, board, my_color, turn, en_passant, castling)
-        print("ruch ai to:", move)
+        print("ai move:", move)
         return move
+
 
     def min_max(self, depht, board, my_color, turn, en_passant, castling):
         if depht == 0 or self.game_ended(board, my_color, castling, en_passant, turn):
@@ -217,7 +218,6 @@ class AI:
             for move_set in range(len(moves)):
                 for move in moves[move_set][1]:
                     board_after_move = self.board_after_move(board, (moves[move_set][0], move)) #
-                    print(move, board_after_move)
                     new_castling = self.move_castle(board_after_move, castling, move[0], move[1])
                     new_en_passant = self.move_en_passant(board_after_move, en_passant, moves[move_set][0][0], move[0], move[1])
                     value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling)
@@ -291,6 +291,7 @@ class AI:
                         pieces[1].append((r, c)) # black
         return pieces
 
+
     def evaluating(self, board, pieces, my_color, castling, turn, en_passant):
         #print("pieces = ", pieces)
         chess_moves = chess.piece_moves()
@@ -351,7 +352,7 @@ class AI:
         if piece.lower() == "p" and row_move in (0, 7):# checks if pice is a pown and promotes it
             piece = "q" if piece.islower() else "Q"
 
-        board_after_move[row_move][col_move] = board[row][col]
+        board_after_move[row_move][col_move] = piece
         board_after_move[row][col] = ""
 
         return board_after_move

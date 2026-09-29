@@ -39,12 +39,12 @@ class Game:
 
     def reset_to_default(self):
         self.board = [
-            ["r", "", "", "", "k", "", "", "r"],  # white
-            ["p", "p", "p", "", "", "", "", "p"],
+            ["r", "n", "b", "q", "k", "b", "n", "r"],  # white
+            ["p", "p", "p", "p", "p", "p", "p", "p"],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
-            ["", "", "Q", "Q", "", "Q", "", ""],
+            ["", "", "", "", "", "", "", ""],
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"]  # black
         ]
@@ -509,13 +509,11 @@ if __name__ == "__main__":
                                         game.board[new_row][new_col] = game.board[row][col]
                                         game.board[row][col] = ""
 
-                                        mate = chess_moves.check_mate(game.board, my_color, game.castling,
-                                                                      game.en_passant)  # this shows end window after one of the players is mated
+                                        mate = chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant)  # this shows end window after one of the players is mated
                                         if mate[0] or mate[1]:
                                             posible_moves = []
                                             game.draw_board()
                                             game.draw_pieces()
-                                            print("mate")
                                             game.game_ended("mate", turn)
                                             waiting = True
                                             while waiting:
@@ -532,8 +530,7 @@ if __name__ == "__main__":
                                                             menu.menu_gui()
                                                             game_running = False
 
-                                        stalemate = chess_moves.is_stalemate(game.board, my_color, game.castling, turn,
-                                                                             game.en_passant)
+                                        stalemate = chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
                                         if stalemate[0] or stalemate[1]:
                                             posible_moves = []
                                             game.draw_board()
@@ -560,7 +557,6 @@ if __name__ == "__main__":
                                         game.draw_pieces()
 
                                         turn = "white" if turn == "black" else "black"
-                                        print(row, col, " | ", new_row, new_col)
 
 
                 elif two_players == True and turn != my_color:  # 2 players
@@ -587,19 +583,17 @@ if __name__ == "__main__":
                                         game.castling["white"]["Rook-R"] = False
 
                                 else:
-                                    if col == 0 and row in (0, 7):
+                                    if col == 0 and row == 7:
                                         game.castling["black"]["Rook-L"] = False
-                                    elif col == 7 and row in (0, 7):
+                                    elif col == 7 and row == 7:
                                         game.castling["black"]["Rook-R"] = False
 
                         row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], ia_move[1][1][1]
                         game.board[new_row][new_col] = game.board[row][col]
                         game.board[row][col] = ""
 
-                        print("dssdsds", game.board[new_row][new_col])
                         if game.board[new_row][new_col].lower() == "p" and new_row in (0, 7):# promotes powns to queens
                             game.board[new_row][new_col] = "q" if my_color == "black" else "Q"
-                            print("dssdsds", game.board[new_row][new_col])
 
 
                         if game.board[new_row][new_col].lower() == "p" and abs(new_row - row) == 2: # saves that ai used 2 tile move of pawn it is for en passant
