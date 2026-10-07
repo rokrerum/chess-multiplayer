@@ -295,15 +295,14 @@ class AI:
     def evaluating(self, board, pieces, my_color, castling, turn, en_passant):
         #print("pieces = ", pieces)
         chess_moves = chess.piece_moves()
-        mate = chess_moves.check_mate(board, my_color, castling, en_passant)
-        stalemate = chess_moves.is_stalemate(board, my_color, castling, turn, en_passant)
-        if mate[0] or mate[1]:
+        game_end_state = chess_moves.game_end_chcek(board, my_color, castling, turn, en_passant)
+        if game_end_state[2] == "mate":
             if my_color == "black":
-                return -999999 if mate[0] else 999999
+                return -999999 if game_end_state[0] else 999999
             else:
-                return -999999 if mate[1] else 999999
+                return -999999 if game_end_state[1] else 999999
 
-        elif stalemate[0] or stalemate[1]:
+        elif game_end_state[2] == "stalemate":
             return 0
 
         values = {
@@ -337,10 +336,9 @@ class AI:
 
     def game_ended(self, board, my_color, castling, en_passant, turn):
         chess_moves = chess.piece_moves()
-        mate = chess_moves.check_mate(board, my_color, castling, en_passant)
-        stalemate = chess_moves.is_stalemate(board, my_color, castling, turn, en_passant)
+        game_end_state = chess_moves.game_end_chcek(board, my_color, castling, turn, en_passant)
 
-        if mate[0] or mate[1] or stalemate[0] or stalemate[1]:
+        if game_end_state[2] != None:
             return True
         return False
 

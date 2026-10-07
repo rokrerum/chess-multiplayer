@@ -509,12 +509,15 @@ if __name__ == "__main__":
                                         game.board[new_row][new_col] = game.board[row][col]
                                         game.board[row][col] = ""
 
-                                        mate = chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant)  # this shows end window after one of the players is mated
-                                        if mate[0] or mate[1]:
+                                        turn = "white" if turn == "black" else "black"
+                                        game_end_state = chess_moves.game_end_chcek(game.board, my_color, game.castling, turn, game.en_passant) # this shows end window after one of the players is mated or stalemated
+                                        print(game_end_state)
+                                        if game_end_state[2] != None:
+                                            who_won = "white" if turn == "black" else "black"
                                             posible_moves = []
                                             game.draw_board()
                                             game.draw_pieces()
-                                            game.game_ended("mate", turn)
+                                            game.game_ended(game_end_state[2], who_won)
                                             waiting = True
                                             while waiting:
                                                 for event in pygame.event.get():
@@ -530,33 +533,9 @@ if __name__ == "__main__":
                                                             menu.menu_gui()
                                                             game_running = False
 
-                                        stalemate = chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
-                                        if stalemate[0] or stalemate[1]:
-                                            posible_moves = []
-                                            game.draw_board()
-                                            game.draw_pieces()
-                                            print("stalemate")
-                                            game.game_ended("stalemate", turn)
-                                            waiting = True
-                                            while waiting:
-                                                for event in pygame.event.get():
-                                                    if event.type == pygame.MOUSEBUTTONDOWN:
-                                                        mouse_x, mouse_y = event.pos
-                                                        x, y = square_size, square_size
-
-                                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
-                                                                square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
-                                                                square_size * 0.75):
-                                                            waiting = False
-                                                            # need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
-                                                            menu.menu_gui()
-                                                            game_running = False
-
                                         posible_moves = []
                                         game.draw_board()
                                         game.draw_pieces()
-
-                                        turn = "white" if turn == "black" else "black"
 
 
                 elif two_players == True and turn != my_color:  # 2 players

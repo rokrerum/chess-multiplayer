@@ -303,61 +303,18 @@ class piece_moves:
         return posible_checks
 
 
-    def check_mate(self, board, my_color, castling, en_passant):
-        mate = [False, False]
-        posible_moves = []
+    def game_end_chcek(self, board, my_color, castling, turn, en_passant):
+        game_state = [False, False, None]
         check = self.check(board, my_color)
         color = ["white", "black"]
+
 
         BISHOP_DIRS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
         ROOK_DIRS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         QUEEN_DIRS = ROOK_DIRS + BISHOP_DIRS
 
         for color_turn in range(2):
-            if check[color_turn][0]:
-                for r in range(8):
-                    for c in range(8):
-                        if (color_turn == 0 and board[r][c].islower()) or (color_turn == 1 and board[r][c].isupper()):
-                            if board[r][c].lower() == "p":
-                                posible_moves.extend(
-                                    self.pawn_moves(board, r, c, color[color_turn], my_color, en_passant))
-
-                            elif board[r][c].lower() == "n":
-                                posible_moves.extend(self.knight_moves(board, r, c, color[color_turn], my_color))
-
-                            elif board[r][c].lower() == "b":
-                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, BISHOP_DIRS))
-
-                            elif board[r][c].lower() == "r":
-                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, ROOK_DIRS))
-
-                            elif board[r][c].lower() == "q":
-                                posible_moves.extend(self.sliding_moves(board, r, c, color[color_turn], my_color, QUEEN_DIRS))
-
-                            elif board[r][c].lower() == "k":
-                                posible_moves.extend(
-                                    self.king_moves(board, r, c, color[color_turn], castling, my_color))
-
-                moves = sum(len(i) for i in posible_moves) / 2
-                if moves == 0:
-                    mate[color_turn] = True
-                posible_moves = []
-
-        return mate
-
-
-    def is_stalemate(self, board, my_color, castling, turn, en_passant):
-        stalemate = [False, False]
-        check = self.check(board, my_color)
-        color = ["white", "black"]
-        turn = "white" if turn == "black" else "black"
-
-        BISHOP_DIRS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-        ROOK_DIRS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        QUEEN_DIRS = ROOK_DIRS + BISHOP_DIRS
-
-        for color_turn in range(2):
-            if check[color_turn][0] == False:
+            if (color_turn == 0 and turn == "white") or (color_turn == 1 and turn == "black"):
                 posible_moves = []
                 for r in range(8):
                     for c in range(8):
@@ -383,9 +340,17 @@ class piece_moves:
                                 posible_moves.extend(
                                     self.king_moves(board, r, c, color[color_turn], castling, my_color))
 
-                moves = sum(len(i) for i in posible_moves)
-                if moves == 0 and ((color_turn == 0 and turn == "white") or (color_turn == 1 and turn == "black")):
-                    stalemate[color_turn] = True
-        return stalemate
+                moves = len(posible_moves)
+
+                if moves == 0 and check[color_turn][0]: #is mate
+                    game_state[color_turn] = True
+                    game_state[2] = "mate"
+                    break
+
+                elif moves == 0: #is stalemate
+                    game_state[color_turn]  = True
+                    game_state[2] = "stalemate"
+
+        return game_state
 
 # made by: rokrerum
