@@ -25,6 +25,7 @@ class Game:
                        in range(8)]
 
         self.turn = "white"
+        self.last_move = None
         self.move_history = []
         self.en_passant = [False]
         self.castling = {"white": {"king": True, "Rook-L": True, "Rook-R": True},
@@ -75,34 +76,78 @@ class Main:
 
 class Menu_gui:
     def __init__(self):
-        self.surface = create_example_window('Example - Simple', (600, 500))
+        self.surface = create_example_window('Szachy', (700, 650))
         self.selected_color = "random"
+
+        chess_theme = pygame_menu.Theme(
+            background_color=(24, 24, 26),
+            title_background_color=(18, 110, 65),
+            title_font=pygame_menu.font.FONT_8BIT,
+            title_font_size=38,
+            title_font_color=(255, 215, 0),
+            widget_font=pygame_menu.font.FONT_OPEN_SANS_BOLD,
+            widget_font_size=24,
+            widget_font_color=(230, 230, 230),
+            widget_margin=(0, 12),
+            selection_color=(255, 215, 0),
+        )
+
         self.menu = pygame_menu.Menu(
-            height=400,
-            theme=pygame_menu.themes.THEME_BLUE,
-            title='Welcome',
-            width=400
+            height=650,
+            width=700,
+            theme=chess_theme,
+            title='Szachy'
         )
 
     def set_color(self, color_value):
         self.selected_color = color_value
         print(f"Wybrano kolor: {color_value}")
 
+    def style_button(self, btn, bg=(45, 45, 50), border=(255, 215, 0), padding=(8, 22)):
+        btn.set_background_color(bg)
+        btn.set_border(2, border)
+        btn.set_padding(padding)
+        return btn
+
     def menu_gui(self):
         global user_name
         self.menu.clear()
-        user_name = self.menu.add.text_input('Name: ', default='John Doe', maxchar=10)
 
-        frame = self.menu.add.frame_h(338, 58)
-        white_button = frame.pack(self.menu.add.button('White', self.set_color, 'white'))
-        random_button = frame.pack(self.menu.add.button('Random', self.set_color, 'random'))
-        black_button = frame.pack(self.menu.add.button('Black', self.set_color, 'black'))
+        self.menu.add.label("Podaj swoje imię", font_size=18, font_color=(190, 190, 190))
+        user_name = self.menu.add.text_input('', default='Gracz', maxchar=10)
+
+        self.menu.add.vertical_margin(15)
+        self.menu.add.label("Wybierz kolor", font_size=18, font_color=(190, 190, 190))
+
+        frame = self.menu.add.frame_h(360, 70, margin=(10, 10))
+
+        white_button = self.style_button(
+            self.menu.add.button('Białe', self.set_color, 'white'), padding=(4, 16)
+        )
+        random_button = self.style_button(
+            self.menu.add.button('Losowo', self.set_color, 'random'), padding=(4, 16)
+        )
+        black_button = self.style_button(
+            self.menu.add.button('Czarne', self.set_color, 'black'), padding=(4, 16)
+        )
+
+        for b in (white_button, random_button, black_button):
+            b.set_margin(0, 0)  # frame.pack() wymaga marginesu (0, 0)
+            frame.pack(b)
+
         random_button.apply()
 
-        self.menu.add.button('Play solo', self.start_the_game_singleplayer)
-        self.menu.add.button('Play ai', self.start_the_game_against_ia)
-        self.menu.add.button('Play multiplayer', self.start_the_game_multiplayer)
-        self.menu.add.button('Quit', pygame_menu.events.EXIT)
+        self.menu.add.vertical_margin(20)
+
+        self.style_button(self.menu.add.button('Graj solo', self.start_the_game_singleplayer))
+        self.style_button(self.menu.add.button('Graj z AI', self.start_the_game_against_ia))
+        self.style_button(self.menu.add.button('Graj multiplayer', self.start_the_game_multiplayer))
+
+        self.menu.add.vertical_margin(15)
+        self.style_button(
+            self.menu.add.button('Wyjście', pygame_menu.events.EXIT),
+            bg=(60, 30, 30), border=(200, 80, 80)
+        )
 
         self.menu.enable()
         self.menu.center_content()
@@ -227,8 +272,19 @@ class game_gui(Game, Menu_gui):
                                   ((row + 1) * square_size) - (square_size - border_size), square_size,
                                   square_size))
 
+        if self.last_move != None:
+            for move in self.last_move:
+                highlight_surface = pygame.Surface((square_size, square_size), pygame.SRCALPHA)
+                highlight_surface.fill((255, 215, 0, 90))  # złoty, półprzezroczysty
+                screen.blit(
+                    highlight_surface,
+                    (
+                        ((move[1] + 1) * square_size) - (square_size - border_size),
+                        ((move[0] + 1) * square_size) - (square_size - border_size),
+                    )
+                )
+
         pygame.display.update()
-        print(self.board)
 
     def draw_pieces(self):
         for i in range(0, 8):  # this for loops are for drawing pieces on the board
@@ -236,7 +292,6 @@ class game_gui(Game, Menu_gui):
                 piece = self.board[i][j]
                 if len(piece) == 0:
                     continue
-
                 else:
                     if piece[0].upper() == "P":
                         if piece[0].isupper():
@@ -277,7 +332,11 @@ class game_gui(Game, Menu_gui):
                     image = pygame.image.load(image_path)
                     scaled_image = pygame.transform.scale(image, (64, 64))
                     row, col = self.to_board(i, j, my_color) #changes the values to be correct with position of what player sees
-                    screen.blit(scaled_image, (((col + 1) * square_size - border_size, (row + 1) * square_size - border_size)))
+                    if moving_pieces and moving_pieces[1][0] == i and moving_pieces[1][1] == j:  # drawing picked up piece
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
+                        screen.blit(scaled_image, (mouse_x - 32, mouse_y - 32))
+                    else:
+                        screen.blit(scaled_image, (((col + 1) * square_size - border_size, (row + 1) * square_size - border_size)))
 
         pygame.display.update()
 
@@ -338,13 +397,14 @@ if __name__ == "__main__":
     game = game_gui()
     menu = Menu_gui()
 
-    global selected_piece, turn, my_color
+    global selected_piece, turn, my_color, moving_pieces
     turn = "white"
     my_color = "black"
     app_running, game_running = True, True
     dragging = False
     selected_piece = None
     posible_moves = []
+    moving_pieces = [] #it will contain what piece it is, position on board
 
     menu.menu_gui()
 
@@ -408,13 +468,20 @@ if __name__ == "__main__":
                                 elif selected_piece.upper() == "Q":
                                     posible_moves = chess_moves.sliding_moves(game.board, row, col, turn, my_color, QUEEN_DIRS) #Queen
 
+                                moving_pieces = [selected_piece, (row, col)]
                                 game.draw_board()
                                 game.draw_pieces()
 
                             else:
                                 dragging = False
+                                moving_pieces = []
                                 selected_piece = None
 
+
+                    elif event.type == pygame.MOUSEMOTION:
+                        if dragging:
+                            game.draw_board()
+                            game.draw_pieces()
 
                     elif event.type == pygame.MOUSEBUTTONUP:
                         if event.button == 1 and dragging:
@@ -424,14 +491,13 @@ if __name__ == "__main__":
                             new_row, new_col = game.to_board(new_row, new_col, my_color)
                             piece_pos = (new_row, new_col)
                             dragging = False
+                            moving_pieces = []
+                            move_made = False
 
                             if len(posible_moves) != 0:
                                 for i in posible_moves:
-                                    if new_row >= 0 and new_col >= 0 and new_row <= 7 and new_col <= 7 and i[
-                                        0] == new_row and i[1] == new_col:
-
-                                        if game.board[row][col] in ("K", "k", "R",
-                                                                    "r"):  # if you move a king or a rook u cant use it for castling
+                                    if new_row >= 0 and new_col >= 0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
+                                        if game.board[row][col] in ("K", "k", "R", "r"):  # if you move a king or a rook u cant use it for castling
                                             if game.board[row][col] in ("K", "k"):
                                                 if game.board[row][col] == "k":
                                                     for state in game.castling["white"]:
@@ -441,8 +507,7 @@ if __name__ == "__main__":
                                                         game.castling["black"][state] = False
 
 
-                                            elif game.board[row][col] in ("R",
-                                                                          "r"):  # this will be activated if rook is moved and castling will not be posible with it
+                                            elif game.board[row][col] in ("R", "r"):  # this will be activated if rook is moved and castling will not be posible with it
                                                 if game.board[row][col] == "r":
                                                     if col == 0 and row in (0, 7):
                                                         game.castling["white"]["Rook-L"] = False
@@ -534,8 +599,16 @@ if __name__ == "__main__":
                                                             game_running = False
 
                                         posible_moves = []
+                                        moving_pieces = []
+                                        game.last_move = [(row, col), (new_row, new_col)]
                                         game.draw_board()
                                         game.draw_pieces()
+                                        break
+
+                            if not move_made:
+                                game.draw_board()
+                                game.draw_pieces()
+
 
 
                 elif two_players == True and turn != my_color:  # 2 players
