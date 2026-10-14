@@ -184,6 +184,7 @@ class game_gui(Game, Menu_gui):
         self.game = Game()
 
 
+
     def to_screen(self, row, col, my_color):
         if my_color == "white":
             return 7 - row, 7 - col
@@ -195,15 +196,20 @@ class game_gui(Game, Menu_gui):
             return 7 - screen_row, 7 - screen_col
         return screen_row, screen_col
 
-
     def game_interface(self, x=900, y=600):
         pygame.init()
         game = Game()
-        global screen, square_size, border_size;
+        global screen, square_size, border_size, piece_images
         square_size = int(round(y / 18 * 2))
         border_size = int(round(y / 18))
 
         screen = pygame.display.set_mode((x, y))
+
+        piece_images = {}
+        for piece_char, filename in PIECE_IMAGE_FILES.items():
+            image = pygame.image.load(f"assets/{filename}").convert_alpha()
+            piece_images[piece_char] = pygame.transform.scale(image, (64, 64))
+
 
     def draw_board(self, x=900, y=600):
         game = Game()
@@ -276,15 +282,24 @@ class game_gui(Game, Menu_gui):
             for move in self.last_move:
                 highlight_surface = pygame.Surface((square_size, square_size), pygame.SRCALPHA)
                 highlight_surface.fill((255, 215, 0, 90))  # złoty, półprzezroczysty
-                screen.blit(
-                    highlight_surface,
-                    (
-                        ((move[1] + 1) * square_size) - (square_size - border_size),
-                        ((move[0] + 1) * square_size) - (square_size - border_size),
+                if my_color == "white":
+                    screen.blit(
+                        highlight_surface,
+                        (
+                            ((abs(move[1] - 7) + 1) * square_size) - (square_size - border_size),
+                            ((abs(move[0] - 7) + 1) * square_size) - (square_size - border_size),
+                        )
                     )
-                )
+                else:
+                    screen.blit(
+                        highlight_surface,
+                        (
+                            ((move[1] + 1) * square_size) - (square_size - border_size),
+                            ((move[0] + 1) * square_size) - (square_size - border_size),
+                        )
+                    )
+        #pygame.display.update()
 
-        pygame.display.update()
 
     def draw_pieces(self):
         for i in range(0, 8):  # this for loops are for drawing pieces on the board
@@ -292,53 +307,17 @@ class game_gui(Game, Menu_gui):
                 piece = self.board[i][j]
                 if len(piece) == 0:
                     continue
+
+                scaled_image = piece_images[piece]
+                row, col = self.to_board(i, j, my_color) #changes the values to be correct with position of what player sees
+                if moving_pieces and moving_pieces[1][0] == i and moving_pieces[1][1] == j:  # drawing picked up piece
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    screen.blit(scaled_image, (mouse_x - 32, mouse_y - 32))
                 else:
-                    if piece[0].upper() == "P":
-                        if piece[0].isupper():
-                            image_path = "assets/pb.png"
-                        else:
-                            image_path = "assets/pw.png"  # white
-
-                    elif piece[0].upper() == "R":
-                        if piece[0].isupper():
-                            image_path = "assets/rb.png"
-                        else:
-                            image_path = "assets/rw.png"
-
-                    elif piece[0].upper() == "N":
-                        if piece[0].isupper():
-                            image_path = "assets/nb.png"
-                        else:
-                            image_path = "assets/nw.png"
-
-                    elif piece[0].upper() == "B":
-                        if piece[0].isupper():
-                            image_path = "assets/bb.png"
-                        else:
-                            image_path = "assets/bw.png"
-
-                    elif piece[0].upper() == "K":
-                        if piece[0].isupper():
-                            image_path = "assets/kb.png"
-                        else:
-                            image_path = "assets/kw.png"
-
-                    elif piece[0].upper() == "Q":
-                        if piece[0].isupper():
-                            image_path = "assets/qb.png"
-                        else:
-                            image_path = "assets/qw.png"
-
-                    image = pygame.image.load(image_path)
-                    scaled_image = pygame.transform.scale(image, (64, 64))
-                    row, col = self.to_board(i, j, my_color) #changes the values to be correct with position of what player sees
-                    if moving_pieces and moving_pieces[1][0] == i and moving_pieces[1][1] == j:  # drawing picked up piece
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        screen.blit(scaled_image, (mouse_x - 32, mouse_y - 32))
-                    else:
-                        screen.blit(scaled_image, (((col + 1) * square_size - border_size, (row + 1) * square_size - border_size)))
+                    screen.blit(scaled_image, (((col + 1) * square_size - border_size, (row + 1) * square_size - border_size)))
 
         pygame.display.update()
+
 
     def show_promotion_menu(self):
         # this is for loading figure graphics
@@ -397,7 +376,7 @@ if __name__ == "__main__":
     game = game_gui()
     menu = Menu_gui()
 
-    global selected_piece, turn, my_color, moving_pieces
+    global selected_piece, turn, my_color, moving_pieces, PIECE_IMAGE_FILES
     turn = "white"
     my_color = "black"
     app_running, game_running = True, True
@@ -405,6 +384,14 @@ if __name__ == "__main__":
     selected_piece = None
     posible_moves = []
     moving_pieces = [] #it will contain what piece it is, position on board
+    PIECE_IMAGE_FILES = {
+        "p": "pw.png", "P": "pb.png",
+        "r": "rw.png", "R": "rb.png",
+        "n": "nw.png", "N": "nb.png",
+        "b": "bw.png", "B": "bb.png",
+        "k": "kw.png", "K": "kb.png",
+        "q": "qw.png", "Q": "qb.png",
+    }
 
     menu.menu_gui()
 
@@ -478,10 +465,15 @@ if __name__ == "__main__":
                                 selected_piece = None
 
 
-                    elif event.type == pygame.MOUSEMOTION:
-                        if dragging:
-                            game.draw_board()
-                            game.draw_pieces()
+                    elif (event.type == pygame.MOUSEMOTION) and selected_piece != None:
+                        if (turn == "white" and selected_piece.islower()) or (turn == "black" and selected_piece.isupper()):
+                            if dragging:
+                                game.draw_board()
+                                game.draw_pieces()
+                        else: #turn of selected piece is in next round
+                            moving_pieces = []
+                            selected_piece = None
+                            dragging = False
 
                     elif event.type == pygame.MOUSEBUTTONUP:
                         if event.button == 1 and dragging:
@@ -663,13 +655,15 @@ if __name__ == "__main__":
                                     game.board[row][new_col - 1] = game.board[row][0]
                                     game.board[row][7] = ""
 
-                        mate = chess_moves.check_mate(game.board, my_color, game.castling, game.en_passant)  # this shows end window after one of the players is mated
-                        if mate[0] or mate[1]: # gives return menu to user after compliting a game
+                        game_end_state = chess_moves.game_end_chcek(game.board, my_color, game.castling, turn,
+                                                                    game.en_passant)  # this shows end window after one of the players is mated or stalemated
+                        print(game_end_state)
+                        if game_end_state[2] != None:
+                            who_won = "white" if turn == "black" else "black"
                             posible_moves = []
                             game.draw_board()
                             game.draw_pieces()
-                            print("mate")
-                            game.game_ended("mate", turn)
+                            game.game_ended(game_end_state[2], who_won)
                             waiting = True
                             while waiting:
                                 for event in pygame.event.get():
@@ -682,28 +676,6 @@ if __name__ == "__main__":
                                                 square_size * 0.75):
                                             waiting = False
                                             # need to add better returnning to menu like reshaping window
-                                            menu.menu_gui()
-                                            game_running = False
-
-                        stalemate = chess_moves.is_stalemate(game.board, my_color, game.castling, turn, game.en_passant)
-                        if stalemate[0] or stalemate[1]: # gives return menu to user after compliting a game
-                            posible_moves = []
-                            game.draw_board()
-                            game.draw_pieces()
-                            print("stalemate")
-                            game.game_ended("stalemate", turn)
-                            waiting = True
-                            while waiting:
-                                for event in pygame.event.get():
-                                    if event.type == pygame.MOUSEBUTTONDOWN:
-                                        mouse_x, mouse_y = event.pos
-                                        x, y = square_size, square_size
-
-                                        if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
-                                                square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
-                                                square_size * 0.75):
-                                            waiting = False
-                                            # need to add better returnning to menu like reshaping window, and if u return from game it's adds secend set of buttons
                                             menu.menu_gui()
                                             game_running = False
 
