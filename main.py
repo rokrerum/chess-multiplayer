@@ -8,6 +8,14 @@ import multiplayer
 
 global posible_moves
 posible_moves = []
+BG = (24, 24, 26)
+BTN = (45, 45, 50)
+GOLD = (255, 215, 0)
+TEXT = (230, 230, 230)
+MUTED = (150, 150, 155)
+DARK = (24, 24, 26)
+BTN_W = 300
+
 class Game:
     def __init__(self):
         self.board = [
@@ -99,59 +107,72 @@ class Menu_gui:
             title='Szachy'
         )
 
+
     def set_color(self, color_value):
         self.selected_color = color_value
-        print(f"Wybrano kolor: {color_value}")
+        for name, btn in self.color_buttons.items():
+            active = name == color_value
+            btn.set_background_color(GOLD if active else BTN)
+            btn.update_font({'color': DARK if active else TEXT,
+                             'selected_color': DARK if active else GOLD})
 
-    def style_button(self, btn, bg=(45, 45, 50), border=(255, 215, 0), padding=(8, 22)):
+
+    def style_button(self, btn, bg=BTN, border=GOLD, padding=(8, 22), primary=False):
+        if primary:
+            bg, border = GOLD, GOLD
+            btn.update_font({'color': DARK, 'selected_color': DARK})
         btn.set_background_color(bg)
         btn.set_border(2, border)
         btn.set_padding(padding)
         return btn
 
+
+    def equalize_width(self, buttons, width=BTN_W):
+        for b in buttons:
+            extra = max(0, (width - b.get_width()) // 2)
+            b.set_padding((8, 22 + extra))
+
+
+    def section(self, text):
+        self.menu.add.label(text.upper(), font_size=14, font_color=MUTED)
+
     def menu_gui(self):
+        menu.surface = pygame.display.set_mode((700, 650))
         global user_name
         self.menu.clear()
+        self.color_buttons = {}
 
-        self.menu.add.label("Podaj swoje imię", font_size=18, font_color=(190, 190, 190))
+        self.section("Gracz")
         user_name = self.menu.add.text_input('', default='Gracz', maxchar=10)
 
-        self.menu.add.vertical_margin(15)
-        self.menu.add.label("Wybierz kolor", font_size=18, font_color=(190, 190, 190))
-
-        frame = self.menu.add.frame_h(360, 70, margin=(10, 10))
-
-        white_button = self.style_button(
-            self.menu.add.button('Białe', self.set_color, 'white'), padding=(4, 16)
-        )
-        random_button = self.style_button(
-            self.menu.add.button('Losowo', self.set_color, 'random'), padding=(4, 16)
-        )
-        black_button = self.style_button(
-            self.menu.add.button('Czarne', self.set_color, 'black'), padding=(4, 16)
-        )
-
-        for b in (white_button, random_button, black_button):
-            b.set_margin(0, 0)  # frame.pack() wymaga marginesu (0, 0)
+        self.menu.add.vertical_margin(4)
+        self.section("Twój kolor")
+        frame = self.menu.add.frame_h(360, 70, margin=(10, 0))
+        for key, label in (('white', 'Białe'), ('random', 'Losowo'), ('black', 'Czarne')):
+            b = self.style_button(self.menu.add.button(label, self.set_color, key), padding=(4, 16))
+            b.set_margin(0, 0)
             frame.pack(b)
+            self.color_buttons[key] = b
+        self.color_buttons['random'].apply()
 
-        random_button.apply()
+        self.menu.add.vertical_margin(10)
+        self.section("Tryb gry")
+        play = [
+            self.style_button(self.menu.add.button('Graj z AI', self.start_the_game_against_ia), primary=True),
+            self.style_button(self.menu.add.button('Graj solo', self.start_the_game_singleplayer)),
+            self.style_button(self.menu.add.button('Multiplayer', self.start_the_game_multiplayer)),
+        ]
+        exit_btn = self.style_button(self.menu.add.button('Wyjście', pygame_menu.events.EXIT),
+                                     bg=(60, 30, 30), border=(200, 80, 80))
+        self.equalize_width(play + [exit_btn])
 
-        self.menu.add.vertical_margin(20)
-
-        self.style_button(self.menu.add.button('Graj solo', self.start_the_game_singleplayer))
-        self.style_button(self.menu.add.button('Graj z AI', self.start_the_game_against_ia))
-        self.style_button(self.menu.add.button('Graj multiplayer', self.start_the_game_multiplayer))
-
-        self.menu.add.vertical_margin(15)
-        self.style_button(
-            self.menu.add.button('Wyjście', pygame_menu.events.EXIT),
-            bg=(60, 30, 30), border=(200, 80, 80)
-        )
+        self.menu.add.vertical_margin(10)
+        self.menu.add.label("v1.0", font_size=12, font_color=(100, 100, 105))
 
         self.menu.enable()
         self.menu.center_content()
         self.menu.mainloop(self.surface)
+
 
     def start_the_game_singleplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
@@ -161,6 +182,7 @@ class Menu_gui:
         game_interface_var = game_gui()
         game_interface_var.game_interface()
 
+
     def start_the_game_against_ia(self):
         print(f'{user_name.get_value()}, Do the job here!')
         global two_players
@@ -168,6 +190,7 @@ class Menu_gui:
         self.menu.disable()
         game_interface_var = game_gui()
         game_interface_var.game_interface()
+
 
     def start_the_game_multiplayer(self) -> None:
         print(f'{user_name.get_value()}, Do the job here!')
@@ -184,7 +207,6 @@ class game_gui(Game, Menu_gui):
         self.game = Game()
 
 
-
     def to_screen(self, row, col, my_color):
         if my_color == "white":
             return 7 - row, 7 - col
@@ -195,6 +217,7 @@ class game_gui(Game, Menu_gui):
         if my_color == "white":
             return 7 - screen_row, 7 - screen_col
         return screen_row, screen_col
+
 
     def game_interface(self, x=900, y=600):
         pygame.init()
@@ -215,15 +238,22 @@ class game_gui(Game, Menu_gui):
         game = Game()
         font = pygame.font.Font('freesansbold.ttf', border_size)
 
-        pygame.draw.rect(screen, (22, 200, 100), (0, 0, y, y))  # this creates ther border around the board
+        pygame.draw.rect(screen, (50, 50, 50), (0, 0, y, y))  # this creates ther border around the board
+
 
         for i in range(1, 9):  # this loop is for writing the numbers on the board
-            text = font.render(f"{9 - i}", True, (220, 0, 133), (22, 200, 100))
+            number = i
+            if my_color == "black":
+                number = 9 - i
+            text = font.render(f"{9 - number}", True, (222, 222, 222), (50, 50, 50))
             screen.blit(text, (border_size / 3, (i * square_size) - (square_size - (border_size * 1.5))))
 
         alfabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         for i in range(1, 9):  # this loop is for writing alfabet on the board
-            text = font.render(alfabet[i - 1], True, (220, 0, 133), (22, 200, 100))
+            number = i
+            if my_color == "black":
+                number = 9 - i
+            text = font.render(alfabet[number - 1], True, (222, 222, 222), (50, 50, 50))
             screen.blit(text, ((i * square_size) - (square_size - (border_size * 1.7)), y - border_size))
 
         # this for loops are for drawing the board
@@ -232,15 +262,12 @@ class game_gui(Game, Menu_gui):
                 board_square = game.places[i - 1][j - 1]
                 if board_square.color == "white":
                     pygame.draw.rect(screen, (255, 255, 255), ((j * square_size) - (square_size - border_size),
-                                                               (i * square_size) - (square_size - border_size),
-                                                               square_size,
-                                                               square_size))  # (rect_x, rect_y, rect_width, rect_height)
+                                                               (i * square_size) - (square_size - border_size), square_size, square_size))  # (rect_x, rect_y, rect_width, rect_height)
                 else:
                     pygame.draw.rect(screen, (100, 100, 100), ((j * square_size) - (square_size - border_size),
-                                                               (i * square_size) - (square_size - border_size),
-                                                               square_size, square_size))
+                                                               (i * square_size) - (square_size - border_size), square_size, square_size))
 
-        pygame.draw.rect(screen, (102, 0, 100), (y, 0, x - y, y))
+        pygame.draw.rect(screen, (24, 24, 26), (y, 0, x - y, y))
 
         if posible_moves != []:  # this if statement is for drawing the posible moves for clicked figure
             for move in posible_moves:
@@ -318,21 +345,16 @@ class game_gui(Game, Menu_gui):
 
         pygame.display.update()
 
-
     def show_promotion_menu(self):
-        # this is for loading figure graphics
         queen_img = pygame.image.load("assets/qw.png")
         rook_img = pygame.image.load("assets/rw.png")
         bishop_img = pygame.image.load("assets/bw.png")
         knight_img = pygame.image.load("assets/nw.png")
 
-        # it draws menu of promotion
-        pygame.draw.rect(screen, (200, 200, 200),
-                         (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5))  #
-        pygame.draw.rect(screen, (50, 50, 50),
-                         (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5), 3)  # border
+        panel_rect = (square_size * 2, square_size * 3.75, square_size * 5, square_size * 1.5)
+        pygame.draw.rect(screen, (30, 30, 32), panel_rect, border_radius=10)
+        pygame.draw.rect(screen, (255, 215, 0), panel_rect, 3, border_radius=10)
 
-        # it show icons ofpieces u can promote into
         screen.blit(queen_img, (square_size * 2.3, square_size * 4))
         screen.blit(rook_img, (square_size * 3.4, square_size * 4))
         screen.blit(bishop_img, (square_size * 4.6, square_size * 4))
@@ -344,27 +366,27 @@ class game_gui(Game, Menu_gui):
         font_win_text = pygame.font.Font('freesansbold.ttf', int(border_size * 1.7))
         font_button = pygame.font.Font('freesansbold.ttf', border_size)
 
-        pygame.draw.rect(screen, (200, 200, 200),
-                         (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5))  #
-        pygame.draw.rect(screen, (50, 50, 50),
-                         (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5), 3)  # border
+        panel_rect = (square_size * 1, square_size * 2.75, square_size * 7, square_size * 3.5)
+        pygame.draw.rect(screen, (24, 24, 26), panel_rect, border_radius=14)
+        pygame.draw.rect(screen, (255, 215, 0), panel_rect, 3, border_radius=14)
 
         if what_happend == "mate":
-            who_wins = "white" if turn == "black" else "black"
-            text = font_win_text.render(f"{turn.capitalize()} wins", True, (2, 2, 1), )
-            screen.blit(text, (square_size * 2.1, square_size * 3.35, square_size * 2, square_size * 0.75))
+            text = font_win_text.render(f"{turn.capitalize()} wygrywa!", True, (255, 215, 0))
+            text_rect = text.get_rect(center=(square_size * 4.5, square_size * 4.1))
+            screen.blit(text, text_rect)
 
         elif what_happend == "stalemate":
-            text = font_win_text.render("Stalemate", True, (2, 2, 1), )
-            screen.blit(text, (square_size * 2.4, square_size * 3.35, square_size * 2, square_size * 0.75))
+            text = font_win_text.render("Pat", True, (230, 230, 230))
+            text_rect = text.get_rect(center=(square_size * 4.5, square_size * 4.1))
+            screen.blit(text, text_rect)
 
-        pygame.draw.rect(screen, (200, 200, 200),
-                         (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75))  #
-        pygame.draw.rect(screen, (50, 50, 50),
-                         (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75), 3)  # border
+        button_rect = (square_size * 3.5, square_size * 5.2, square_size * 2, square_size * 0.75)
+        pygame.draw.rect(screen, (45, 45, 50), button_rect, border_radius=8)
+        pygame.draw.rect(screen, (255, 215, 0), button_rect, 2, border_radius=8)
 
-        text = font_button.render("Menu", True, (2, 2, 1), )
-        screen.blit(text, (square_size * 3.85, square_size * 5.35, square_size * 2, square_size * 0.75))
+        text = font_button.render("Menu", True, (230, 230, 230))
+        text_rect = text.get_rect(center=(square_size * 4.5, square_size * 5.575))
+        screen.blit(text, text_rect)
 
         pygame.display.update()
 
@@ -489,6 +511,7 @@ if __name__ == "__main__":
                             if len(posible_moves) != 0:
                                 for i in posible_moves:
                                     if new_row >= 0 and new_col >= 0 and new_row <= 7 and new_col <= 7 and i[0] == new_row and i[1] == new_col:
+                                        move_made = True
                                         if game.board[row][col] in ("K", "k", "R", "r"):  # if you move a king or a rook u cant use it for castling
                                             if game.board[row][col] in ("K", "k"):
                                                 if game.board[row][col] == "k":
@@ -533,7 +556,7 @@ if __name__ == "__main__":
 
                                         if game.board[row][col] in ("p", "P"):  # if pawn moves to the last row, it will be promoted
                                             if new_row in (0, 7):  # promotion of the client player
-                                                if two_players == False:  # if it is silgle player, the player can choose what piece to promote to
+                                                if two_players == False or turn == my_color:  # if it is silgle player, the player can choose what piece to promote to
 
                                                     game.show_promotion_menu()
                                                     waiting = True
@@ -560,8 +583,6 @@ if __name__ == "__main__":
                                                                     game.board[row][col] = "n" if turn == "white" else "N"
                                                                     waiting = False
 
-                                                else:  # if it is multiplayer, the AI or another player will choose what piece to promote to
-                                                    pass
 
                                         game.board[new_row][new_col] = game.board[row][col]
                                         game.board[row][col] = ""
@@ -602,7 +623,6 @@ if __name__ == "__main__":
                                 game.draw_pieces()
 
 
-
                 elif two_players == True and turn != my_color:  # 2 players
                     if True:  # AI turn (against AI)
                         ia_move = chess_bot.ai(game.board, turn, my_color, game.en_passant, game.castling)
@@ -635,9 +655,20 @@ if __name__ == "__main__":
                         row, col, new_row, new_col = ia_move[1][0][0], ia_move[1][0][1], ia_move[1][1][0], ia_move[1][1][1]
                         game.board[new_row][new_col] = game.board[row][col]
                         game.board[row][col] = ""
+                        game.last_move = [(row, col), (new_row, new_col)]
 
-                        if game.board[new_row][new_col].lower() == "p" and new_row in (0, 7):# promotes powns to queens
-                            game.board[new_row][new_col] = "q" if my_color == "black" else "Q"
+                        if game.board[new_row][new_col].lower() == "k" and abs(new_col - col) > 1:
+                            if new_col < col:
+                                game.board[row][new_col + 1] = game.board[row][0]
+                                game.board[row][0] = ""
+                            else:
+                                game.board[row][new_col - 1] = game.board[row][7]
+                                game.board[row][7] = ""
+
+
+                        move_info = ia_move[1][1]
+                        if len(move_info) == 3 and move_info[2] == "en_passant_move":
+                            game.board[row][new_col] = ""
 
 
                         if game.board[new_row][new_col].lower() == "p" and abs(new_row - row) == 2: # saves that ai used 2 tile move of pawn it is for en passant
@@ -646,17 +677,7 @@ if __name__ == "__main__":
                             game.en_passant = [False]
 
 
-                        if abs(new_col - col) > 1:  # checking if the move is castling and if it is, it will move the rook
-                            if game.board[row][col].lower() == "k":
-                                if new_col < col:
-                                    game.board[row][new_col + 1] = game.board[row][0]
-                                    game.board[row][0] = ""
-                                else:
-                                    game.board[row][new_col - 1] = game.board[row][0]
-                                    game.board[row][7] = ""
-
-                        game_end_state = chess_moves.game_end_chcek(game.board, my_color, game.castling, turn,
-                                                                    game.en_passant)  # this shows end window after one of the players is mated or stalemated
+                        game_end_state = chess_moves.game_end_chcek(game.board, my_color, game.castling, turn, game.en_passant)  # this shows end window after one of the players is mated or stalemated
                         print(game_end_state)
                         if game_end_state[2] != None:
                             who_won = "white" if turn == "black" else "black"
