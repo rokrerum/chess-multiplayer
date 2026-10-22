@@ -65,6 +65,7 @@ class Game:
         self.check = False
 
 
+
 class Square:
     def __init__(self, position, color):
         self.position = position
@@ -175,7 +176,6 @@ class Menu_gui:
 
 
     def start_the_game_singleplayer(self) -> None:
-        print(f'{user_name.get_value()}, Do the job here!')
         global two_players
         two_players = False
         self.menu.disable()
@@ -184,7 +184,6 @@ class Menu_gui:
 
 
     def start_the_game_against_ia(self):
-        print(f'{user_name.get_value()}, Do the job here!')
         global two_players
         two_players = True
         self.menu.disable()
@@ -193,7 +192,6 @@ class Menu_gui:
 
 
     def start_the_game_multiplayer(self) -> None:
-        print(f'{user_name.get_value()}, Do the job here!')
         global two_players
         two_players = True
         self.menu.disable()
@@ -417,9 +415,14 @@ if __name__ == "__main__":
 
     menu.menu_gui()
 
-    print(menu.selected_color)
     while app_running:
         game_running = True
+        turn = "white"
+        posible_moves = []
+        moving_pieces = []
+        selected_piece = None
+        dragging = False
+        game.last_move = None
         menu.selected_color = random.choice(("black", "white")) if menu.selected_color == "random" else menu.selected_color  # change color randomly if option random is selected
         game.reset_to_default()
 
@@ -541,7 +544,7 @@ if __name__ == "__main__":
                                                     game.board[row][new_col + 1] = game.board[row][0]
                                                     game.board[row][0] = ""
                                                 else:
-                                                    game.board[row][new_col - 1] = game.board[row][0]
+                                                    game.board[row][new_col - 1] = game.board[row][7]
                                                     game.board[row][7] = ""
 
                                             elif game.board[row][col].lower() == "p" and i[2] == "en_passant":
@@ -589,7 +592,6 @@ if __name__ == "__main__":
 
                                         turn = "white" if turn == "black" else "black"
                                         game_end_state = chess_moves.game_end_chcek(game.board, my_color, game.castling, turn, game.en_passant) # this shows end window after one of the players is mated or stalemated
-                                        print(game_end_state)
                                         if game_end_state[2] != None:
                                             who_won = "white" if turn == "black" else "black"
                                             posible_moves = []
@@ -599,10 +601,13 @@ if __name__ == "__main__":
                                             waiting = True
                                             while waiting:
                                                 for event in pygame.event.get():
+                                                    if event.type == pygame.QUIT:
+                                                        pygame.quit()
+                                                        raise SystemExit
+
                                                     if event.type == pygame.MOUSEBUTTONDOWN:
                                                         mouse_x, mouse_y = event.pos
                                                         x, y = square_size, square_size
-
                                                         if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
                                                                 square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
                                                                 square_size * 0.75):
@@ -678,7 +683,6 @@ if __name__ == "__main__":
 
 
                         game_end_state = chess_moves.game_end_chcek(game.board, my_color, game.castling, turn, game.en_passant)  # this shows end window after one of the players is mated or stalemated
-                        print(game_end_state)
                         if game_end_state[2] != None:
                             who_won = "white" if turn == "black" else "black"
                             posible_moves = []
@@ -688,10 +692,13 @@ if __name__ == "__main__":
                             waiting = True
                             while waiting:
                                 for event in pygame.event.get():
+                                    if event.type == pygame.QUIT:
+                                        pygame.quit()
+                                        raise SystemExit
+
                                     if event.type == pygame.MOUSEBUTTONDOWN:
                                         mouse_x, mouse_y = event.pos
                                         x, y = square_size, square_size
-
                                         if square_size * 3.5 <= mouse_x <= square_size * 3.5 + (
                                                 square_size * 2) and square_size * 5.2 <= mouse_y <= square_size * 5.2 + (
                                                 square_size * 0.75):
@@ -706,4 +713,4 @@ if __name__ == "__main__":
                     elif True:  # another player turn (against another player online)
                         pass
 
-                        # made by: rokrerum
+# made by: rokrerum

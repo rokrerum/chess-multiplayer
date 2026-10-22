@@ -250,7 +250,6 @@ class piece_moves:
                         elif board[move[0]][move[1]][0] in ('r', 'q', 'R', 'Q'):
                             if (board[row][col] == "k" and board[move[0]][move[1]][0].isupper()) or (
                                     board[row][col] == "K" and board[move[0]][move[1]][0].islower()):
-                                # print("rrook")
                                 posible_checks[king_turn][0] = True
                                 posible_checks[king_turn].append((move[0], move[1]))
                             else:
@@ -268,7 +267,6 @@ class piece_moves:
                         elif board[move[0]][move[1]][0] in ('b', 'q', 'B', "Q"):
                             if (board[row][col] == "k" and board[move[0]][move[1]][0].isupper()) or (
                                     board[row][col] == "K" and board[move[0]][move[1]][0].islower()):
-                                # print("bishop")
                                 posible_checks[king_turn][0] = True
                                 posible_checks[king_turn].append((move[0], move[1]))
                             else:
@@ -283,7 +281,6 @@ class piece_moves:
                     if board[r][c] in ('n', 'N'):
                         if (board[row][col] == "k" and board[r][c].isupper()) or (
                                 board[row][col] == "K" and board[r][c][0].islower()):
-                            # print("knight")
                             posible_checks[king_turn][0] = True
                             posible_checks[king_turn].append((r, c))
 
@@ -294,7 +291,6 @@ class piece_moves:
                     elif board[i[0]][i[1]][0] in ('p', 'P'):
                         if (board[row][col] == "k" and board[i[0]][i[1]][0].isupper()) or (
                                 board[row][col] == "K" and board[i[0]][i[1]][0].islower()):
-                            # print("pawn"+ str(i[0]+i[1]))
                             posible_checks[king_turn][0] = True
                             posible_checks[king_turn].append((i[0], i[1]))
                     else:

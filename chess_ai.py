@@ -198,12 +198,12 @@ class AI:
 
 
     def ai(self, board, turn, my_color, en_passant, castling):
-        move = self.min_max(2, board, my_color, turn, en_passant, castling)
-        print("ai move:", move)
+        move = self.min_max(3, board, my_color, turn, en_passant, castling, float("-inf"), float("inf"))
+        #print("ai move:", move)
         return move
 
 
-    def min_max(self, depht, board, my_color, turn, en_passant, castling):
+    def min_max(self, depht, board, my_color, turn, en_passant, castling, alpha, beta):
         if depht == 0 or self.game_ended(board, my_color, castling, en_passant, turn):
             score = self.evaluating(board, self.all_pieces(board), my_color, castling, turn, en_passant)
             return (score, None)
@@ -211,6 +211,7 @@ class AI:
         best_move = None
         next_turn = "black" if turn == "white" else "white"
 
+        cutoff = False
         if my_color != turn:  # ai move maximalizing
             max_val = -999999999
             pieces = self.all_pieces(board)
@@ -220,10 +221,16 @@ class AI:
                     board_after_move = self.board_after_move(board, (moves[move_set][0], move)) #
                     new_castling = self.move_castle(board_after_move, castling, move[0], move[1])
                     new_en_passant = self.move_en_passant(board_after_move, en_passant, moves[move_set][0][0], move[0], move[1])
-                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling)
+                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling, alpha, beta)
                     if value[0] > max_val:
                         max_val = value[0]
                         best_move = (moves[move_set][0], move)
+                    alpha = max(alpha, max_val)
+                    if alpha >= beta:
+                        cutoff = True
+                        break
+                if cutoff:
+                    break
             return (max_val, best_move)
 
         else:  # human move  min
@@ -235,10 +242,17 @@ class AI:
                     board_after_move = self.board_after_move(board, (moves[move_set][0], move)) # old location and new in variables
                     new_castling = self.move_castle(board_after_move, castling, move[0], move[1])
                     new_en_passant = self.move_en_passant(board_after_move, en_passant, moves[move_set][0][0], move[0], move[1])
-                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling)
+                    value = self.min_max(depht - 1, board_after_move, my_color, next_turn, new_en_passant, new_castling, alpha, beta)
                     if min_val > value[0]:
                         best_move = (moves[move_set][0], move)
                         min_val = value[0]
+                    beta = min(beta, min_val)
+                    if beta <= alpha:
+                        cutoff = True
+                        break
+                if cutoff:
+                    break
+
             return (min_val, best_move)
 
 
@@ -293,7 +307,6 @@ class AI:
 
 
     def evaluating(self, board, pieces, my_color, castling, turn, en_passant):
-        #print("pieces = ", pieces)
         chess_moves = chess.piece_moves()
         game_end_state = chess_moves.game_end_chcek(board, my_color, castling, turn, en_passant)
         if game_end_state[2] == "mate":
@@ -329,7 +342,6 @@ class AI:
                 black = points
             points = 0
 
-        #print(white, "  ", black, pieces)
         score = white - black if my_color == "black" else (white - black) * -1
         return score
 
